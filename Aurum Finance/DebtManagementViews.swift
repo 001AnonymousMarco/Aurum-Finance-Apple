@@ -16,7 +16,7 @@ struct DebtOverviewCard: View {
                     
                     Text("\(financeStore.liabilities.count) active debts")
                         .font(.subheadline)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                 }
                 
                 Spacer()
@@ -33,7 +33,7 @@ struct DebtOverviewCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Total Debt")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(financeStore.liabilities.reduce(0) { $0 + $1.balance }))
                         .font(.title3)
@@ -46,7 +46,7 @@ struct DebtOverviewCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("Monthly Payments")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(financeStore.liabilities.reduce(0) { $0 + $1.minimumPayment }))
                         .font(.title3)
@@ -60,7 +60,7 @@ struct DebtOverviewCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Debt-to-Income Ratio")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     let ratio = financeStore.debtToIncomeRatio
                     Text("\(Int(ratio * 100))%")
@@ -74,7 +74,7 @@ struct DebtOverviewCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("High Priority Debts")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text("\(financeStore.highPriorityDebts.count)")
                         .font(.headline)
@@ -128,7 +128,7 @@ struct EnhancedLiabilityCard: View {
                         
                         Text(liability.type.rawValue)
                             .font(.caption)
-                            .foregroundColor(.aurumSecondaryText)
+                            .foregroundColor(.aurumGray)
                     }
                 }
                 
@@ -152,7 +152,7 @@ struct EnhancedLiabilityCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Balance")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(liability.balance))
                         .font(.headline)
@@ -165,7 +165,7 @@ struct EnhancedLiabilityCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("Interest Rate")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text("\(String(format: "%.2f", liability.interestRate))%")
                         .font(.headline)
@@ -189,7 +189,7 @@ struct EnhancedLiabilityCard: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Payoff Time")
                                 .font(.caption)
-                                .foregroundColor(.aurumSecondaryText)
+                                .foregroundColor(.aurumGray)
                             
                             Text("\(strategy.monthsToPayoff) months")
                                 .font(.caption)
@@ -202,7 +202,7 @@ struct EnhancedLiabilityCard: View {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("Total Interest")
                                 .font(.caption)
-                                .foregroundColor(.aurumSecondaryText)
+                                .foregroundColor(.aurumGray)
                             
                             Text(formatCurrency(strategy.totalInterestPaid))
                                 .font(.caption)
@@ -279,7 +279,7 @@ struct PayoffCalculatorView: View {
                 VStack(alignment: .leading) {
                     Text("Current Balance")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     Text(formatCurrency(liability.balance))
                         .font(.title3)
                         .fontWeight(.semibold)
@@ -291,7 +291,7 @@ struct PayoffCalculatorView: View {
                 VStack(alignment: .trailing) {
                     Text("Interest Rate")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     Text("\(String(format: "%.2f", liability.interestRate))%")
                         .font(.title3)
                         .fontWeight(.semibold)
@@ -301,7 +301,7 @@ struct PayoffCalculatorView: View {
             
             Text("Minimum Payment: \(formatCurrency(liability.minimumPayment))")
                 .font(.subheadline)
-                .foregroundColor(.aurumSecondaryText)
+                .foregroundColor(.aurumGray)
         }
         .padding(16)
         .background(Color.aurumCard)
@@ -437,7 +437,7 @@ struct PayoffResultsView: View {
                     if timeSaved > 0 {
                         HStack {
                             Text("Time Saved:")
-                                .foregroundColor(.aurumSecondaryText)
+                                .foregroundColor(.aurumGray)
                             Spacer()
                             Text("\(timeSaved) months")
                                 .fontWeight(.medium)
@@ -448,7 +448,7 @@ struct PayoffResultsView: View {
                     if interestSaved > 0 {
                         HStack {
                             Text("Interest Saved:")
-                                .foregroundColor(.aurumSecondaryText)
+                                .foregroundColor(.aurumGray)
                             Spacer()
                             Text(formatCurrency(interestSaved))
                                 .fontWeight(.medium)
@@ -472,7 +472,7 @@ struct ResultRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .foregroundColor(.aurumSecondaryText)
+                .foregroundColor(.aurumGray)
             
             Spacer()
             
