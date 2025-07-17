@@ -230,6 +230,15 @@ struct BudgetListView: View {
         }
         .background(Color.aurumDark)
         .navigationTitle("Budgets")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddBudget = true }) {
+                    Image(systemName: "plus")
+                        .font(.headline)
+                        .foregroundColor(.aurumGold)
+                }
+            }
+        }
         .sheet(isPresented: $showingAddBudget) {
             AddBudgetView()
                 .environmentObject(financeStore)
