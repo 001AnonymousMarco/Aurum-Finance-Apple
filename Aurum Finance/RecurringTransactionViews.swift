@@ -51,7 +51,7 @@ struct RecurringTransactionsOverviewCard: View {
                     Text(formatCurrency(financeStore.totalMonthlyRecurringExpenses))
                         .font(.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(Color(hex: "#FF3B30"))
+                        .foregroundColor(.aurumRed)
                 }
             }
             
