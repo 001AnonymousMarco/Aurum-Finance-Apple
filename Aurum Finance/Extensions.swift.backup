@@ -231,4 +231,20 @@ extension View {
     func cornerRadius(_ radius: CGFloat, corners: RectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
-} 
+}
+
+// MARK: - Icon Constants
+
+extension Image {
+    static let aurumAdd = Image(systemName: "plus.circle.fill")
+    static let aurumProfile = Image(systemName: "person.circle.fill")
+    static let aurumNotification = Image(systemName: "bell.fill")
+    static let aurumSuccess = Image(systemName: "checkmark.circle.fill")
+    static let aurumWarning = Image(systemName: "exclamationmark.triangle.fill")
+    static let aurumError = Image(systemName: "xmark.circle.fill")
+    static let aurumEdit = Image(systemName: "pencil.circle.fill")
+    static let aurumDelete = Image(systemName: "trash.circle.fill")
+    static let aurumSettings = Image(systemName: "gear.circle.fill")
+    static let aurumInfo = Image(systemName: "info.circle.fill")
+    static let aurumClose = Image(systemName: "xmark.circle.fill")
+}
