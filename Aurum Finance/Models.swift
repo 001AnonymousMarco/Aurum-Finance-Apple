@@ -3,10 +3,434 @@ import Foundation
 // MARK: - Type Aliases
 typealias ExpenseCategory = Expense.ExpenseCategory
 
+// MARK: - Enhanced Analytics Models
+
+struct CashFlowAnalysis {
+    let monthlyIncome: Double
+    let monthlyExpenses: Double
+    let netCashFlow: Double
+    let savingsRate: Double
+    let netWorth: Double
+    
+    var cashFlowStatus: CashFlowStatus {
+        if netCashFlow > 0 {
+            return .positive
+        } else if netCashFlow < 0 {
+            return .negative
+        } else {
+            return .neutral
+        }
+    }
+    
+    enum CashFlowStatus {
+        case positive, negative, neutral
+        
+        var color: String {
+            switch self {
+            case .positive: return "#34C759"
+            case .negative: return "#FF3B30"
+            case .neutral: return "#8A8A8E"
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .positive: return "arrow.up.right.circle.fill"
+            case .negative: return "arrow.down.right.circle.fill"
+            case .neutral: return "minus.circle.fill"
+            }
+        }
+    }
+}
+
+struct ExpenseBreakdownItem: Identifiable {
+    let id = UUID()
+    let category: ExpenseCategory
+    let amount: Double
+    let percentage: Double
+}
+
+struct MonthlyTrend: Identifiable {
+    let id = UUID()
+    let month: Date
+    let income: Double
+    let expenses: Double
+    let netFlow: Double
+    
+    var monthName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM yyyy"
+        return formatter.string(from: month)
+    }
+    
+    var shortMonthName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM"
+        return formatter.string(from: month)
+    }
+}
+
+enum DateRange: CaseIterable, Identifiable, Equatable {
+    case thisWeek
+    case thisMonth
+    case lastMonth
+    case last3Months
+    case last6Months
+    case thisYear
+    case custom(start: Date, end: Date)
+    
+    var id: String {
+        switch self {
+        case .thisWeek: return "thisWeek"
+        case .thisMonth: return "thisMonth"
+        case .lastMonth: return "lastMonth"
+        case .last3Months: return "last3Months"
+        case .last6Months: return "last6Months"
+        case .thisYear: return "thisYear"
+        case .custom: return "custom"
+        }
+    }
+    
+    var displayName: String {
+        switch self {
+        case .thisWeek: return "This Week"
+        case .thisMonth: return "This Month"
+        case .lastMonth: return "Last Month"
+        case .last3Months: return "Last 3 Months"
+        case .last6Months: return "Last 6 Months"
+        case .thisYear: return "This Year"
+        case .custom(let start, let end):
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            return "\(formatter.string(from: start)) - \(formatter.string(from: end))"
+        }
+    }
+    
+    static var allCases: [DateRange] {
+        return [.thisWeek, .thisMonth, .lastMonth, .last3Months, .last6Months, .thisYear]
+    }
+    
+    static func == (lhs: DateRange, rhs: DateRange) -> Bool {
+        switch (lhs, rhs) {
+        case (.thisWeek, .thisWeek),
+             (.thisMonth, .thisMonth),
+             (.lastMonth, .lastMonth),
+             (.last3Months, .last3Months),
+             (.last6Months, .last6Months),
+             (.thisYear, .thisYear):
+            return true
+        case (.custom(let start1, let end1), .custom(let start2, let end2)):
+            return start1 == start2 && end1 == end2
+        default:
+            return false
+        }
+    }
+    
+    func contains(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        switch self {
+        case .thisWeek:
+            return calendar.isDate(date, equalTo: now, toGranularity: .weekOfYear)
+        case .thisMonth:
+            return calendar.isDate(date, equalTo: now, toGranularity: .month)
+        case .lastMonth:
+            guard let lastMonth = calendar.date(byAdding: .month, value: -1, to: now) else { return false }
+            return calendar.isDate(date, equalTo: lastMonth, toGranularity: .month)
+        case .last3Months:
+            guard let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: now) else { return false }
+            return date >= threeMonthsAgo && date <= now
+        case .last6Months:
+            guard let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: now) else { return false }
+            return date >= sixMonthsAgo && date <= now
+        case .thisYear:
+            return calendar.isDate(date, equalTo: now, toGranularity: .year)
+        case .custom(let start, let end):
+            return date >= start && date <= end
+        }
+    }
+}
+
+enum TransactionType: String, CaseIterable, Identifiable {
+    case income = "Income"
+    case expense = "Expense"
+    
+    var id: String { rawValue }
+    
+    var color: String {
+        switch self {
+        case .income: return "#34C759"
+        case .expense: return "#FF3B30"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .income: return "plus.circle.fill"
+        case .expense: return "minus.circle.fill"
+        }
+    }
+}
+
 // MARK: - View Models
 
 enum AddSheetType {
     case income, expense, savingsGoal, liability
+}
+
+// MARK: - Phase 2: Advanced Financial Management Models
+
+// MARK: - Recurring Transaction Models
+
+enum RecurrenceFrequency: String, CaseIterable, Codable {
+    case daily = "Daily"
+    case weekly = "Weekly"
+    case biweekly = "Bi-weekly"
+    case monthly = "Monthly"
+    case quarterly = "Quarterly"
+    case yearly = "Yearly"
+    
+    var icon: String {
+        switch self {
+        case .daily: return "calendar"
+        case .weekly: return "calendar.day.timeline.left"
+        case .biweekly: return "calendar.badge.clock"
+        case .monthly: return "calendar.circle"
+        case .quarterly: return "calendar.circle.fill"
+        case .yearly: return "calendar.badge.plus"
+        }
+    }
+    
+    var description: String {
+        return self.rawValue
+    }
+    
+    func nextDate(from date: Date) -> Date {
+        let calendar = Calendar.current
+        switch self {
+        case .daily:
+            return calendar.date(byAdding: .day, value: 1, to: date) ?? date
+        case .weekly:
+            return calendar.date(byAdding: .weekOfYear, value: 1, to: date) ?? date
+        case .biweekly:
+            return calendar.date(byAdding: .weekOfYear, value: 2, to: date) ?? date
+        case .monthly:
+            return calendar.date(byAdding: .month, value: 1, to: date) ?? date
+        case .quarterly:
+            return calendar.date(byAdding: .month, value: 3, to: date) ?? date
+        case .yearly:
+            return calendar.date(byAdding: .year, value: 1, to: date) ?? date
+        }
+    }
+}
+
+struct RecurringTransaction: Identifiable, Codable {
+    let id = UUID()
+    var name: String
+    var amount: Double
+    var frequency: RecurrenceFrequency
+    var category: String
+    var isIncome: Bool
+    var startDate: Date
+    var endDate: Date?
+    var isActive: Bool = true
+    var lastProcessed: Date?
+    var nextDue: Date
+    var description: String?
+    
+    var expenseCategory: Expense.ExpenseCategory? {
+        if isIncome { return nil }
+        return Expense.ExpenseCategory(rawValue: category) ?? .other
+    }
+    
+    var incomeCategory: Income.IncomeCategory? {
+        if !isIncome { return nil }
+        return Income.IncomeCategory(rawValue: category) ?? .other
+    }
+    
+    func shouldProcess(on date: Date = Date()) -> Bool {
+        guard isActive else { return false }
+        
+        // Check if we've already processed today
+        if let lastProcessed = lastProcessed,
+           Calendar.current.isDate(lastProcessed, inSameDayAs: date) {
+            return false
+        }
+        
+        // Check if it's time to process
+        return date >= nextDue
+    }
+    
+    func updateNextDue() -> RecurringTransaction {
+        var updated = self
+        updated.nextDue = frequency.nextDate(from: nextDue)
+        updated.lastProcessed = Date()
+        return updated
+    }
+}
+
+// MARK: - Budget Management Models
+
+struct Budget: Identifiable, Codable {
+    let id = UUID()
+    var name: String
+    var category: Expense.ExpenseCategory
+    var monthlyLimit: Double
+    var startDate: Date
+    var endDate: Date?
+    var isActive: Bool = true
+    var alertThreshold: Double = 0.8 // Alert at 80%
+    var description: String?
+    
+    func currentSpent(expenses: [Expense]) -> Double {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        return expenses.filter { expense in
+            expense.category == category &&
+            calendar.isDate(expense.date, equalTo: now, toGranularity: .month) &&
+            calendar.isDate(expense.date, equalTo: now, toGranularity: .year)
+        }.reduce(0) { $0 + $1.amount }
+    }
+    
+    func progressPercentage(expenses: [Expense]) -> Double {
+        let spent = currentSpent(expenses: expenses)
+        return monthlyLimit > 0 ? min(spent / monthlyLimit, 1.0) : 0.0
+    }
+    
+    func remainingAmount(expenses: [Expense]) -> Double {
+        return monthlyLimit - currentSpent(expenses: expenses)
+    }
+    
+    func status(expenses: [Expense]) -> BudgetStatus {
+        let progress = progressPercentage(expenses: expenses)
+        if progress >= 1.0 {
+            return .overBudget
+        } else if progress >= alertThreshold {
+            return .nearLimit
+        } else {
+            return .onTrack
+        }
+    }
+}
+
+enum BudgetStatus {
+    case onTrack, nearLimit, overBudget
+    
+    var color: String {
+        switch self {
+        case .onTrack: return "#34C759"
+        case .nearLimit: return "#FF9500"
+        case .overBudget: return "#FF3B30"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .onTrack: return "checkmark.circle.fill"
+        case .nearLimit: return "exclamationmark.triangle.fill"
+        case .overBudget: return "xmark.circle.fill"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .onTrack: return "On Track"
+        case .nearLimit: return "Near Limit"
+        case .overBudget: return "Over Budget"
+        }
+    }
+}
+
+// MARK: - Enhanced Debt Management Models
+
+struct DebtPayoffStrategy: Codable {
+    let monthlyPayment: Double
+    let payoffDate: Date
+    let totalInterestPaid: Double
+    let totalAmountPaid: Double
+    let monthsToPayoff: Int
+    
+    static func calculate(
+        principal: Double,
+        interestRate: Double,
+        monthlyPayment: Double
+    ) -> DebtPayoffStrategy? {
+        guard principal > 0, interestRate >= 0, monthlyPayment > 0 else { return nil }
+        
+        let monthlyRate = interestRate / 100 / 12
+        var balance = principal
+        var totalInterest: Double = 0
+        var months = 0
+        
+        // Prevent infinite loop
+        let maxMonths = 1000
+        
+        while balance > 0.01 && months < maxMonths {
+            let interestPayment = balance * monthlyRate
+            let principalPayment = min(monthlyPayment - interestPayment, balance)
+            
+            if principalPayment <= 0 {
+                // Payment too small to cover interest
+                return nil
+            }
+            
+            balance -= principalPayment
+            totalInterest += interestPayment
+            months += 1
+        }
+        
+        let payoffDate = Calendar.current.date(byAdding: .month, value: months, to: Date()) ?? Date()
+        
+        return DebtPayoffStrategy(
+            monthlyPayment: monthlyPayment,
+            payoffDate: payoffDate,
+            totalInterestPaid: totalInterest,
+            totalAmountPaid: principal + totalInterest,
+            monthsToPayoff: months
+        )
+    }
+}
+
+struct BudgetAnalysis {
+    let totalBudgeted: Double
+    let totalSpent: Double
+    let budgetsOnTrack: Int
+    let budgetsNearLimit: Int
+    let budgetsOverBudget: Int
+    let overallStatus: BudgetStatus
+    
+    static func analyze(budgets: [Budget], expenses: [Expense]) -> BudgetAnalysis {
+        let activeBudgets = budgets.filter { $0.isActive }
+        let totalBudgeted = activeBudgets.reduce(0) { $0 + $1.monthlyLimit }
+        let totalSpent = activeBudgets.reduce(0) { $0 + $1.currentSpent(expenses: expenses) }
+        
+        var onTrack = 0, nearLimit = 0, overBudget = 0
+        
+        for budget in activeBudgets {
+            switch budget.status(expenses: expenses) {
+            case .onTrack: onTrack += 1
+            case .nearLimit: nearLimit += 1
+            case .overBudget: overBudget += 1
+            }
+        }
+        
+        let overallStatus: BudgetStatus = {
+            if overBudget > 0 { return .overBudget }
+            if nearLimit > 0 { return .nearLimit }
+            return .onTrack
+        }()
+        
+        return BudgetAnalysis(
+            totalBudgeted: totalBudgeted,
+            totalSpent: totalSpent,
+            budgetsOnTrack: onTrack,
+            budgetsNearLimit: nearLimit,
+            budgetsOverBudget: overBudget,
+            overallStatus: overallStatus
+        )
+    }
 }
 
 // MARK: - Core Data Models
@@ -86,6 +510,7 @@ struct Expense: Identifiable, Codable {
     var date: Date
     var expenseDescription: String
     var isRecurring: Bool = false
+    var notes: String? = nil
     
     enum ExpenseCategory: String, CaseIterable, Codable {
         case food = "Food & Dining"
@@ -346,6 +771,66 @@ struct Liability: Identifiable, Codable {
             dueDate: dueDate,
             description: description
         )
+    }
+    
+    // MARK: - Debt Management Features
+    
+    func payoffStrategy(monthlyPayment: Double? = nil) -> DebtPayoffStrategy? {
+        let payment = monthlyPayment ?? minimumPayment
+        return DebtPayoffStrategy.calculate(
+            principal: balance,
+            interestRate: interestRate,
+            monthlyPayment: payment
+        )
+    }
+    
+    func minimumPayoffStrategy() -> DebtPayoffStrategy? {
+        return payoffStrategy(monthlyPayment: minimumPayment)
+    }
+    
+    func acceleratedPayoffStrategy(extraPayment: Double) -> DebtPayoffStrategy? {
+        return payoffStrategy(monthlyPayment: minimumPayment + extraPayment)
+    }
+    
+    func debtToIncomeRatio(monthlyIncome: Double) -> Double {
+        guard monthlyIncome > 0 else { return 0 }
+        return minimumPayment / monthlyIncome
+    }
+    
+    var isHighInterest: Bool {
+        return interestRate > 15.0 // Consider high if over 15%
+    }
+    
+    var priority: DebtPriority {
+        if isHighInterest {
+            return .high
+        } else if interestRate > 7.0 {
+            return .medium
+        } else {
+            return .low
+        }
+    }
+}
+
+enum DebtPriority: String {
+    case high = "High Priority"
+    case medium = "Medium Priority"
+    case low = "Low Priority"
+    
+    var color: String {
+        switch self {
+        case .high: return "#FF3B30"
+        case .medium: return "#FF9500"
+        case .low: return "#34C759"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .high: return "Pay off first - high interest"
+        case .medium: return "Pay extra when possible"
+        case .low: return "Minimum payments are fine"
+        }
     }
 }
 

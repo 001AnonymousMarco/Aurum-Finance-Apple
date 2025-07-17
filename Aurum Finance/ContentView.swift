@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Firebase
 
 struct ContentView: View {
     @StateObject private var financeStore = FinanceStore()
@@ -60,16 +59,40 @@ struct ContentView: View {
             .tag(2)
             
             NavigationStack {
-                LiabilitiesView()
+                BudgetListView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
             }
             .environmentObject(financeStore)
             .tabItem {
-                Image(systemName: "minus.circle")
-                Text("Liabilities")
+                Image(systemName: "chart.pie")
+                Text("Budgets")
             }
             .tag(3)
+            
+            NavigationStack {
+                RecurringTransactionsListView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.aurumDark)
+            }
+            .environmentObject(financeStore)
+            .tabItem {
+                Image(systemName: "arrow.clockwise.circle")
+                Text("Recurring")
+            }
+            .tag(4)
+            
+            NavigationStack {
+                EnhancedLiabilitiesView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.aurumDark)
+            }
+            .environmentObject(financeStore)
+            .tabItem {
+                Image(systemName: "creditcard")
+                Text("Debts")
+            }
+            .tag(5)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accentColor(.aurumGold)
@@ -228,133 +251,511 @@ struct FloatingActionButton: View {
 // Placeholder views for other tabs
 struct TransactionsView: View {
     @EnvironmentObject var financeStore: FinanceStore
-    @State private var selectedFilter: TransactionFilter = .all
-    @State private var searchText: String = ""
+    @State private var showingFilterSheet = false
     @State private var showingAddSheet = false
-    @State private var addSheetType: AddSheetType = .income
+    @State private var addSheetType: AddSheetType = .expense
     
-    enum TransactionFilter {
-        case all, income, expenses
-    }
-    
-    var filteredTransactions: [AnyTransaction] {
-        var transactions = financeStore.recentTransactions
-        
-        // Apply type filter
-        if selectedFilter != .all {
-            transactions = transactions.filter { transaction in
-                switch selectedFilter {
-                case .income: return transaction.type == .income
-                case .expenses: return transaction.type == .expense
-                case .all: return true
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Search and Filter Header
+                TransactionFilterHeader(
+                    searchText: $financeStore.searchText,
+                    showingFilterSheet: $showingFilterSheet
+                )
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color.aurumCard)
+                
+                // Active Filters Display
+                if hasActiveFilters {
+                    ActiveFiltersView()
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.aurumDark)
+                }
+                
+                // Transactions List
+                TransactionsList(transactions: financeStore.filteredTransactions)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.aurumDark)
+            .navigationTitle("Transactions")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.large)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: { showingAddSheet = true }) {
+                        Image(systemName: "plus")
+                            .font(.headline)
+                            .foregroundColor(.aurumGold)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingFilterSheet) {
+                TransactionFiltersSheet()
+                    .environmentObject(financeStore)
+            }
+            .sheet(isPresented: $showingAddSheet) {
+                NavigationView {
+                    Group {
+                        switch addSheetType {
+                        case .income:
+                            AddIncomeView()
+                        case .expense:
+                            AddExpenseView()
+                        case .savingsGoal:
+                            AddSavingsGoalView()
+                        case .liability:
+                            AddLiabilityView()
+                        }
+                    }
+                    .environmentObject(financeStore)
                 }
             }
         }
-        
-        // Apply search filter if text is not empty
-        if !searchText.isEmpty {
-            transactions = transactions.filter { transaction in
-                let description = transaction.description?.lowercased() ?? ""
-                let amount = transaction.amount.currencyFormatted.lowercased()
-                return description.contains(searchText.lowercased()) ||
-                       amount.contains(searchText.lowercased())
+    }
+    
+    private var hasActiveFilters: Bool {
+        financeStore.selectedDateRange != .thisMonth ||
+        financeStore.selectedTransactionType != nil ||
+        financeStore.selectedExpenseCategory != nil
+    }
+}
+
+struct TransactionFilterHeader: View {
+    @Binding var searchText: String
+    @Binding var showingFilterSheet: Bool
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Search Field
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.aurumGray)
+                    .font(.system(size: 16))
+                
+                TextField("Search transactions...", text: $searchText)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .accentColor(.aurumGold)
+                
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.aurumGray)
+                            .font(.system(size: 16))
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.aurumDark)
+            .cornerRadius(10)
+            
+            // Filter Button
+            Button(action: { showingFilterSheet = true }) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 16))
+                    .foregroundColor(.aurumGold)
+                    .padding(12)
+                    .background(Color.aurumDark)
+                    .cornerRadius(10)
             }
         }
-        
-        return transactions
+    }
+}
+
+struct ActiveFiltersView: View {
+    @EnvironmentObject var financeStore: FinanceStore
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                Text("Filters:")
+                    .font(.caption)
+                    .foregroundColor(.aurumGray)
+                
+                if financeStore.selectedDateRange != .thisMonth {
+                    RemovableFilterChip(
+                        title: financeStore.selectedDateRange.displayName,
+                        onRemove: { financeStore.selectedDateRange = .thisMonth }
+                    )
+                }
+                
+                if let transactionType = financeStore.selectedTransactionType {
+                    RemovableFilterChip(
+                        title: transactionType.rawValue,
+                        onRemove: { financeStore.selectedTransactionType = nil }
+                    )
+                }
+                
+                if let category = financeStore.selectedExpenseCategory {
+                    RemovableFilterChip(
+                        title: category.rawValue,
+                        onRemove: { financeStore.selectedExpenseCategory = nil }
+                    )
+                }
+                
+                Button("Clear All") {
+                    financeStore.selectedDateRange = .thisMonth
+                    financeStore.selectedTransactionType = nil
+                    financeStore.selectedExpenseCategory = nil
+                }
+                .font(.caption)
+                .foregroundColor(.aurumGold)
+                .padding(.leading, 8)
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+}
+
+struct RemovableFilterChip: View {
+    let title: String
+    let onRemove: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.white)
+            
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10))
+                    .foregroundColor(.aurumGray)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color.aurumCard)
+        .cornerRadius(12)
+    }
+}
+
+struct TransactionsList: View {
+    let transactions: [AnyTransaction]
+    
+    var body: some View {
+        if transactions.isEmpty {
+            VStack(spacing: 16) {
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.system(size: 48))
+                    .foregroundColor(.aurumGray)
+                
+                Text("No transactions found")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Text("Try adjusting your search or filters")
+                    .font(.subheadline)
+                    .foregroundColor(.aurumGray)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(groupedTransactions.keys.sorted(by: >), id: \.self) { date in
+                        TransactionDateSection(
+                            date: date,
+                            transactions: groupedTransactions[date] ?? []
+                        )
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 100) // Extra padding for tab bar
+            }
+        }
+    }
+    
+    private var groupedTransactions: [Date: [AnyTransaction]] {
+        let calendar = Calendar.current
+        return Dictionary(grouping: transactions) { transaction in
+            calendar.startOfDay(for: transaction.date)
+        }
+    }
+}
+
+struct TransactionDateSection: View {
+    let date: Date
+    let transactions: [AnyTransaction]
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
+    }
+    
+    private var totalAmount: Double {
+        transactions.reduce(0) { result, transaction in
+            switch transaction.type {
+            case .income:
+                return result + transaction.amount
+            case .expense:
+                return result - transaction.amount
+            }
+        }
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            // Search and Filter
-            VStack(spacing: 16) {
-                // Search Bar
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.aurumGray)
+            // Date Header
+            HStack {
+                Text(dateFormatter.string(from: date))
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Text(totalAmount.currencyFormatted)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(totalAmount >= 0 ? .aurumGreen : .aurumRed)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.aurumCard)
+            .cornerRadius(8)
+            .padding(.vertical, 8)
+            
+            // Transactions for this date
+            VStack(spacing: 0) {
+                ForEach(transactions.sorted { $0.date > $1.date }) { transaction in
+                    EnhancedTransactionRow(transaction: transaction)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.aurumCard)
                     
-                    TextField("Search transactions...", text: $searchText)
-                        .textFieldStyle(.plain)
+                    if transaction.id != transactions.last?.id {
+                        Divider()
+                            .background(Color.aurumGray.opacity(0.3))
+                            .padding(.leading, 72)
+                    }
+                }
+            }
+            .background(Color.aurumCard)
+            .cornerRadius(8)
+        }
+    }
+}
+
+struct EnhancedTransactionRow: View {
+    let transaction: AnyTransaction
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Icon
+            Circle()
+                .fill(Color(hex: transaction.categoryColor))
+                .frame(width: 40, height: 40)
+                .overlay(
+                    Image(systemName: transaction.categoryIcon)
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                )
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(transaction.description ?? "No description")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                
+                HStack {
+                    Text(transaction.type.rawValue)
+                        .font(.caption)
+                        .foregroundColor(Color(hex: transaction.type.color))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color(hex: transaction.type.color).opacity(0.2))
+                        .cornerRadius(4)
+                    
+                    Text(timeFormatter.string(from: transaction.date))
+                        .font(.caption)
+                        .foregroundColor(.aurumGray)
+                }
+            }
+            
+            Spacer()
+            
+            // Amount
+            VStack(alignment: .trailing, spacing: 4) {
+                Text((transaction.type == .income ? "+" : "-") + transaction.amount.compactCurrencyFormatted)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(transaction.type == .income ? .aurumGreen : .aurumRed)
+            }
+        }
+    }
+    
+    private var timeFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter
+    }
+}
+
+struct TransactionFiltersSheet: View {
+    @EnvironmentObject var financeStore: FinanceStore
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                // Date Range Filter
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Date Range")
+                        .font(.headline)
+                        .fontWeight(.semibold)
                         .foregroundColor(.white)
                     
-                    if !searchText.isEmpty {
-                        Button(action: { searchText = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.aurumGray)
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ], spacing: 12) {
+                        ForEach(DateRange.allCases, id: \.id) { range in
+                            FilterOptionButton(
+                                title: range.displayName,
+                                isSelected: financeStore.selectedDateRange.id == range.id,
+                                action: { financeStore.selectedDateRange = range }
+                            )
                         }
                     }
                 }
-                .padding()
-                .background(Color.black.opacity(0.3))
-                .cornerRadius(12)
-                .padding(.horizontal, 24)
                 
-                // Filter Pills
-                HStack(spacing: 12) {
-                    FilterPill(
-                        title: "Income",
-                        isSelected: selectedFilter == .income
-                    ) {
-                        selectedFilter = .income
-                    }
-                    
-                    FilterPill(
-                        title: "Expenses",
-                        isSelected: selectedFilter == .expenses
-                    ) {
-                        selectedFilter = .expenses
-                    }
-                }
-                .padding(.horizontal, 24)
-            }
-            .padding(.vertical, 16)
-            .background(Color.aurumDark)
-            
-            // Transactions List
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(filteredTransactions) { transaction in
-                        TransactionRow(transaction: transaction)
-                            .padding(.horizontal, 24)
-                    }
-                }
-                .padding(.vertical, 16)
-            }
-            .background(Color.black.opacity(0.3))
-        }
-        .background(Color.aurumDark)
-        .navigationTitle("Transactions")
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-        #endif
-        .sheet(isPresented: $showingAddSheet) {
-            NavigationView {
-                Group {
-                    switch addSheetType {
-                    case .income:
-                        AddIncomeView()
-                    case .expense:
-                        AddExpenseView()
-                    case .savingsGoal:
-                        AddSavingsGoalView()
-                    case .liability:
-                        AddLiabilityView()
-                    }
-                }
-                .environmentObject(financeStore)
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { 
-                    addSheetType = .expense
-                    showingAddSheet = true 
-                }) {
-                    Image(systemName: "plus")
+                // Transaction Type Filter
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Transaction Type")
                         .font(.headline)
-                        .foregroundColor(.aurumGold)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    
+                    HStack(spacing: 12) {
+                        FilterOptionButton(
+                            title: "All",
+                            isSelected: financeStore.selectedTransactionType == nil,
+                            action: { financeStore.selectedTransactionType = nil }
+                        )
+                        
+                        ForEach(TransactionType.allCases) { type in
+                            FilterOptionButton(
+                                title: type.rawValue,
+                                isSelected: financeStore.selectedTransactionType == type,
+                                action: { financeStore.selectedTransactionType = type }
+                            )
+                        }
+                        
+                        Spacer()
+                    }
                 }
+                
+                // Expense Category Filter (only if expense type is selected)
+                if financeStore.selectedTransactionType == .expense || financeStore.selectedTransactionType == nil {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Expense Category")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 12) {
+                            FilterOptionButton(
+                                title: "All Categories",
+                                isSelected: financeStore.selectedExpenseCategory == nil,
+                                action: { financeStore.selectedExpenseCategory = nil }
+                            )
+                            
+                            ForEach(ExpenseCategory.allCases, id: \.self) { category in
+                                FilterOptionButton(
+                                    title: category.rawValue,
+                                    isSelected: financeStore.selectedExpenseCategory == category,
+                                    action: { financeStore.selectedExpenseCategory = category }
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                Spacer()
             }
+            .padding(20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.aurumDark)
+            .navigationTitle("Filters")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                #if os(iOS)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Reset") {
+                        financeStore.selectedDateRange = .thisMonth
+                        financeStore.selectedTransactionType = nil
+                        financeStore.selectedExpenseCategory = nil
+                    }
+                    .foregroundColor(.aurumGold)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .fontWeight(.semibold)
+                    .foregroundColor(.aurumGold)
+                }
+                #else
+                ToolbarItem(placement: .primaryAction) {
+                    HStack {
+                        Button("Reset") {
+                            financeStore.selectedDateRange = .thisMonth
+                            financeStore.selectedTransactionType = nil
+                            financeStore.selectedExpenseCategory = nil
+                        }
+                        .foregroundColor(.aurumGold)
+                        
+                        Spacer()
+                        
+                        Button("Done") {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                        .fontWeight(.semibold)
+                        .foregroundColor(.aurumGold)
+                    }
+                }
+                #endif
+            }
+        }
+    }
+}
+
+struct FilterOptionButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(isSelected ? .black : .white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity)
+                .background(isSelected ? Color.aurumGold : Color.aurumCard)
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? Color.aurumGold : Color.aurumGray.opacity(0.3), lineWidth: 1)
+                )
         }
     }
 }

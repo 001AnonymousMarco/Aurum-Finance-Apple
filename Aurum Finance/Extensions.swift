@@ -55,6 +55,16 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
+    
+    static let aurumText = Color("AurumText", bundle: nil)
+    static let aurumSecondaryText = Color("AurumSecondaryText", bundle: nil)
+    static let aurumBorder = Color("AurumBorder", bundle: nil)
+    // Fallbacks if asset not found (optional, for safety)
+    static var aurumTextFallback: Color { Color.white }
+    static var aurumSecondaryTextFallback: Color { Color(red: 0.54, green: 0.54, blue: 0.56) } // #8A8A8E
+    static var aurumBorderFallback: Color { Color(red: 0.23, green: 0.23, blue: 0.24) } // #3A3A3C
+    static let aurumTertiaryText = Color("AurumTertiaryText", bundle: nil)
+    static var aurumTertiaryTextFallback: Color { Color(red: 0.39, green: 0.39, blue: 0.40) } // #636366
 }
 
 // MARK: - Date Extensions
@@ -88,15 +98,29 @@ extension Date {
 // MARK: - App Colors
 
 extension Color {
-    static let aurumGold = Color(hex: "#F4B400")
-    static let aurumDark = Color(hex: "#1E1E2F")
-    static let aurumCard = Color(hex: "#1C1C1E")
-    static let aurumPurple = Color(hex: "#A855F7")
-    static let aurumBlue = Color(hex: "#3B82F6")
-    static let aurumOrange = Color(hex: "#F97316")
-    static let aurumGreen = Color(hex: "#34C759")
-    static let aurumRed = Color(hex: "#FF3B30")
-    static let aurumGray = Color(hex: "#8A8A8E")
+    // Primary Branding Colors
+    static let aurumGold = Color(hex: "#F4B400")        // Primary Accent (Signal Gold)
+    static let aurumInk = Color(hex: "#0B0D14")         // Primary Background (Aurum Ink)
+    
+    // Background Colors
+    static let aurumDark = Color(hex: "#000000")        // Primary Background (Black)
+    static let aurumCard = Color(hex: "#1C1C1E")        // Secondary Background (Off-Black)
+    
+    // Accent Colors
+    static let aurumPurple = Color(hex: "#A855F7")      // Primary Accent
+    static let aurumBlue = Color(hex: "#3B82F6")        // Secondary Accent
+    static let aurumOrange = Color(hex: "#F97316")      // Tertiary Accent
+    
+    // Semantic Colors
+    static let aurumGreen = Color(hex: "#34C759")       // Success
+    static let aurumRed = Color(hex: "#FF3B30")         // Error
+    static let aurumWarning = Color(hex: "#FF9500")     // Warning
+    
+    // Text & Greyscale Colors
+    static let aurumGray = Color(hex: "#8A8A8E")        // Secondary Text / Medium Gray
+    static let aurumGrayTertiary = Color(hex: "#636366") // Tertiary Text
+    static let aurumGrayDark = Color(hex: "#3A3A3C")    // Dark Gray
+    static let aurumGrayLight = Color(hex: "#E5E5EA")   // Light Gray
 }
 
 // MARK: - View Extensions

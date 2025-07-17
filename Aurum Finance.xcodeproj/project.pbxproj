@@ -10,6 +10,7 @@
 		23BCEBB12E248ED4000D15B6 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 23BCEBB02E248ED4000D15B6 /* FirebaseAnalytics */; };
 		23BCEBB32E249417000D15B6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 23BCEBB22E249417000D15B6 /* FirebaseAuth */; };
 		23BCEBB52E249417000D15B6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 23BCEBB42E249417000D15B6 /* FirebaseFirestore */; };
+		23BCEBB72E249417000D15B6 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 23BCEBB62E249417000D15B6 /* FirebaseCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,7 @@
 				23BCEBB12E248ED4000D15B6 /* FirebaseAnalytics in Frameworks */,
 				23BCEBB32E249417000D15B6 /* FirebaseAuth in Frameworks */,
 				23BCEBB52E249417000D15B6 /* FirebaseFirestore in Frameworks */,
+				23BCEBB72E249417000D15B6 /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +147,7 @@
 				23BCEBB02E248ED4000D15B6 /* FirebaseAnalytics */,
 				23BCEBB22E249417000D15B6 /* FirebaseAuth */,
 				23BCEBB42E249417000D15B6 /* FirebaseFirestore */,
+				23BCEBB62E249417000D15B6 /* FirebaseCore */,
 			);
 			productName = "Aurum Finance";
 			productReference = 23881FC82E1C6CB3001C37AE /* Aurum Finance.app */;
@@ -652,6 +655,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 23BCEBAF2E248ED4000D15B6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		23BCEBB62E249417000D15B6 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 23BCEBAF2E248ED4000D15B6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

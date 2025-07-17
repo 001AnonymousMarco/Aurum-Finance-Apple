@@ -1,0 +1,438 @@
+import SwiftUI
+
+// MARK: - Recurring Transaction Views
+
+struct RecurringTransactionsOverviewCard: View {
+    @EnvironmentObject var financeStore: FinanceStore
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Recurring Transactions")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.aurumText)
+                    
+                    Text("\(financeStore.recurringTransactions.filter { $0.isActive }.count) active schedules")
+                        .font(.subheadline)
+                        .foregroundColor(.aurumSecondaryText)
+                }
+                
+                Spacer()
+                
+                VStack {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.aurumBlue)
+                }
+            }
+            
+            // Monthly recurring summary
+            HStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Monthly Income")
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                    
+                    Text(formatCurrency(financeStore.totalMonthlyRecurringIncome))
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(hex: "#34C759"))
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Monthly Expenses")
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                    
+                    Text(formatCurrency(financeStore.totalMonthlyRecurringExpenses))
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(hex: "#FF3B30"))
+                }
+            }
+            
+            // Upcoming and overdue alerts
+            if !financeStore.overdueRecurringTransactions.isEmpty {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(Color(hex: "#FF9500"))
+                    
+                    Text("\(financeStore.overdueRecurringTransactions.count) overdue transaction(s)")
+                        .font(.subheadline)
+                        .foregroundColor(Color(hex: "#FF9500"))
+                    
+                    Spacer()
+                    
+                    Button("Process Now") {
+                        financeStore.processRecurringTransactions()
+                    }
+                    .font(.caption)
+                    .foregroundColor(.aurumBlue)
+                }
+                .padding(.top, 8)
+            }
+        }
+        .padding(16)
+        .background(Color.aurumCard)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.aurumBorder, lineWidth: 1)
+        )
+    }
+}
+
+struct RecurringTransactionCard: View {
+    let transaction: RecurringTransaction
+    @EnvironmentObject var financeStore: FinanceStore
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                // Type and frequency indicator
+                VStack(spacing: 4) {
+                    Image(systemName: transaction.frequency.icon)
+                        .font(.title3)
+                        .foregroundColor(.aurumBlue)
+                    
+                    Text(transaction.frequency.rawValue)
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                }
+                .frame(width: 60)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(transaction.name)
+                        .font(.headline)
+                        .foregroundColor(.aurumText)
+                    
+                    Text(transaction.category)
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                    
+                    if let description = transaction.description {
+                        Text(description)
+                            .font(.caption)
+                            .foregroundColor(.aurumTertiaryText)
+                            .lineLimit(2)
+                    }
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(formatCurrency(transaction.amount))
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(transaction.isIncome ? Color(hex: "#34C759") : Color(hex: "#FF3B30"))
+                    
+                    Text(transaction.isIncome ? "Income" : "Expense")
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                }
+            }
+            
+            // Next due date and status
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Next Due")
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                    
+                    Text(formatDate(transaction.nextDue))
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(transaction.nextDue < Date() ? Color(hex: "#FF9500") : .aurumText)
+                }
+                
+                Spacer()
+                
+                // Status badge
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(transaction.isActive ? Color(hex: "#34C759") : Color(hex: "#8A8A8E"))
+                        .frame(width: 8, height: 8)
+                    
+                    Text(transaction.isActive ? "Active" : "Inactive")
+                        .font(.caption)
+                        .foregroundColor(transaction.isActive ? Color(hex: "#34C759") : Color(hex: "#8A8A8E"))
+                }
+            }
+            
+            // Process button if overdue
+            if transaction.shouldProcess() {
+                Button(action: {
+                    financeStore.processRecurringTransactions()
+                }) {
+                    HStack {
+                        Image(systemName: "play.circle.fill")
+                        Text("Process Transaction")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.aurumBlue)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(Color.aurumBlue.opacity(0.1))
+                    .cornerRadius(8)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color.aurumCard)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.aurumBorder, lineWidth: 1)
+        )
+    }
+}
+
+struct RecurringTransactionsListView: View {
+    @EnvironmentObject var financeStore: FinanceStore
+    @State private var showingAddRecurring = false
+    @State private var selectedFilter: RecurringFilter = .all
+    
+    enum RecurringFilter: String, CaseIterable {
+        case all = "All"
+        case income = "Income"
+        case expense = "Expense"
+        case overdue = "Overdue"
+        case upcoming = "Upcoming"
+    }
+    
+    var filteredTransactions: [RecurringTransaction] {
+        let transactions = financeStore.recurringTransactions
+        
+        switch selectedFilter {
+        case .all:
+            return transactions
+        case .income:
+            return transactions.filter { $0.isIncome }
+        case .expense:
+            return transactions.filter { !$0.isIncome }
+        case .overdue:
+            return financeStore.overdueRecurringTransactions
+        case .upcoming:
+            return financeStore.upcomingRecurringTransactions
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Filter tabs
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(RecurringFilter.allCases, id: \.self) { filter in
+                        FilterChip(
+                            title: filter.rawValue,
+                            isSelected: selectedFilter == filter
+                        ) {
+                            selectedFilter = filter
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            }
+            
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    // Overview card
+                    RecurringTransactionsOverviewCard()
+                    
+                    // Recurring transactions list
+                    ForEach(filteredTransactions) { transaction in
+                        RecurringTransactionCard(transaction: transaction)
+                    }
+                    
+                    // Add new recurring transaction button
+                    Button(action: { showingAddRecurring = true }) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(.aurumPurple)
+                            
+                            Text("Add Recurring Transaction")
+                                .font(.headline)
+                                .foregroundColor(.aurumText)
+                            
+                            Spacer()
+                        }
+                        .padding(16)
+                        .background(Color.aurumCard)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.aurumBorder, lineWidth: 1)
+                        )
+                    }
+                }
+                .padding(16)
+            }
+        }
+        .background(Color.aurumDark)
+        .navigationTitle("Recurring")
+        .sheet(isPresented: $showingAddRecurring) {
+            AddRecurringTransactionView()
+                .environmentObject(financeStore)
+        }
+    }
+}
+
+struct AddRecurringTransactionView: View {
+    @EnvironmentObject var financeStore: FinanceStore
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var name = ""
+    @State private var amount = ""
+    @State private var isIncome = false
+    @State private var selectedFrequency: RecurrenceFrequency = .monthly
+    @State private var selectedIncomeCategory: Income.IncomeCategory = .salary
+    @State private var selectedExpenseCategory: Expense.ExpenseCategory = .food
+    @State private var startDate = Date()
+    @State private var hasEndDate = false
+    @State private var endDate = Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+    @State private var description = ""
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Transaction Details") {
+                    TextField("Transaction Name", text: $name)
+                        .foregroundColor(.aurumText)
+                    
+                    TextField("Amount", text: $amount)
+                        .keyboardType(.decimalPad)
+                        .foregroundColor(.aurumText)
+                    
+                    Picker("Type", selection: $isIncome) {
+                        Text("Expense").tag(false)
+                        Text("Income").tag(true)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    
+                    if isIncome {
+                        Picker("Category", selection: $selectedIncomeCategory) {
+                            ForEach(Income.IncomeCategory.allCases, id: \.self) { category in
+                                Text(category.rawValue).tag(category)
+                            }
+                        }
+                        .foregroundColor(.aurumText)
+                    } else {
+                        Picker("Category", selection: $selectedExpenseCategory) {
+                            ForEach(Expense.ExpenseCategory.allCases, id: \.self) { category in
+                                Text(category.rawValue).tag(category)
+                            }
+                        }
+                        .foregroundColor(.aurumText)
+                    }
+                    
+                    TextField("Description (optional)", text: $description)
+                        .foregroundColor(.aurumText)
+                }
+                
+                Section("Frequency & Schedule") {
+                    Picker("Frequency", selection: $selectedFrequency) {
+                        ForEach(RecurrenceFrequency.allCases, id: \.self) { frequency in
+                            Label(frequency.rawValue, systemImage: frequency.icon)
+                                .tag(frequency)
+                        }
+                    }
+                    .foregroundColor(.aurumText)
+                    
+                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                        .foregroundColor(.aurumText)
+                    
+                    Toggle("Has End Date", isOn: $hasEndDate)
+                        .tint(.aurumPurple)
+                    
+                    if hasEndDate {
+                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+                            .foregroundColor(.aurumText)
+                    }
+                }
+            }
+            .background(Color.aurumDark)
+            .scrollContentBackground(.hidden)
+            .navigationTitle("Add Recurring")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                        .foregroundColor(.aurumSecondaryText)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveRecurringTransaction()
+                    }
+                    .foregroundColor(.aurumPurple)
+                    .disabled(name.isEmpty || amount.isEmpty)
+                }
+            }
+        }
+    }
+    
+    private func saveRecurringTransaction() {
+        guard let amountValue = Double(amount), amountValue > 0 else { return }
+        
+        let category = isIncome ? selectedIncomeCategory.rawValue : selectedExpenseCategory.rawValue
+        let nextDue = selectedFrequency.nextDate(from: startDate)
+        
+        let transaction = RecurringTransaction(
+            name: name,
+            amount: amountValue,
+            frequency: selectedFrequency,
+            category: category,
+            isIncome: isIncome,
+            startDate: startDate,
+            endDate: hasEndDate ? endDate : nil,
+            nextDue: nextDue,
+            description: description.isEmpty ? nil : description
+        )
+        
+        financeStore.addRecurringTransaction(transaction)
+        dismiss()
+    }
+}
+
+struct FilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(isSelected ? .semibold : .medium)
+                .foregroundColor(isSelected ? .aurumDark : .aurumText)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(isSelected ? .aurumPurple : Color.aurumCard)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.aurumBorder, lineWidth: isSelected ? 0 : 1)
+                )
+        }
+    }
+}
+
+// Helper functions
+fileprivate func formatCurrency(_ amount: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.locale = Locale.current
+    return formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
+}
+
+fileprivate func formatDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    return formatter.string(from: date)
+} 

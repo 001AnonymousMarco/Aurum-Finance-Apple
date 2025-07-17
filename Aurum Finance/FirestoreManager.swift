@@ -1,6 +1,4 @@
 import SwiftUI
-import Firebase
-import FirebaseCore
 import FirebaseFirestore
 
 class FirestoreManager: ObservableObject {

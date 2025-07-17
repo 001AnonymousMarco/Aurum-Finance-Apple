@@ -1,8 +1,8 @@
 import SwiftUI
-import Firebase
-import FirebaseAuth
+@preconcurrency import FirebaseAuth
 import FirebaseFirestore
 
+@MainActor
 class FirebaseManager: ObservableObject {
     static let shared = FirebaseManager()
     
@@ -20,7 +20,7 @@ class FirebaseManager: ObservableObject {
         
         // Listen for authentication state changes
         authStateListener = auth.addStateDidChangeListener { [weak self] _, user in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self?.currentUser = user
                 self?.isAuthenticated = user != nil
             }
@@ -36,18 +36,18 @@ class FirebaseManager: ObservableObject {
     
     func signUp(email: String, password: String) async throws {
         let result = try await auth.createUser(withEmail: email, password: password)
-        DispatchQueue.main.async {
-            self.currentUser = result.user
-            self.isAuthenticated = true
-        }
+        // Extract the user before crossing concurrency boundaries
+        let user = result.user
+        self.currentUser = user
+        self.isAuthenticated = true
     }
     
     func signIn(email: String, password: String) async throws {
         let result = try await auth.signIn(withEmail: email, password: password)
-        DispatchQueue.main.async {
-            self.currentUser = result.user
-            self.isAuthenticated = true
-        }
+        // Extract the user before crossing concurrency boundaries
+        let user = result.user
+        self.currentUser = user
+        self.isAuthenticated = true
     }
     
     func signOut() throws {
