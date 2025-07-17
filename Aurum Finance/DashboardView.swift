@@ -110,7 +110,7 @@ struct DashboardView: View {
     // MARK: - Enhanced Quick Stats Section
     
     private func enhancedQuickStatsSection(width: CGFloat) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: .spacingM) {
             Text("Financial Overview")
                 .font(.headline)
                 .fontWeight(.semibold)
