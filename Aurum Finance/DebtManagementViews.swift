@@ -79,7 +79,7 @@ struct DebtOverviewCard: View {
                     Text("\(financeStore.highPriorityDebts.count)")
                         .font(.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(financeStore.highPriorityDebts.isEmpty ? Color(hex: "#34C759") : Color(hex: "#FF3B30"))
+                        .foregroundColor(financeStore.highPriorityDebts.isEmpty ? .aurumGreen : .aurumRed)
                 }
             }
             
