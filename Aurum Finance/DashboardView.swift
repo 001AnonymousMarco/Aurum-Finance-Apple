@@ -70,7 +70,7 @@ struct DashboardView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAddSheet = true }) {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle.fill")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
                 }
