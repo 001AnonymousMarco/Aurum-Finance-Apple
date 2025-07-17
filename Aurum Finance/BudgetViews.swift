@@ -37,7 +37,7 @@ struct BudgetOverviewCard: View {
                 HStack {
                     Text("Overall Progress")
                         .font(.subheadline)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Spacer()
                     
@@ -99,7 +99,7 @@ struct BudgetStatusItem: View {
             
             Text(title)
                 .font(.caption)
-                .foregroundColor(.aurumSecondaryText)
+                .foregroundColor(.aurumGray)
         }
     }
 }
@@ -125,7 +125,7 @@ struct BudgetCard: View {
                         
                         Text(budget.category.rawValue)
                             .font(.caption)
-                            .foregroundColor(.aurumSecondaryText)
+                            .foregroundColor(.aurumGray)
                     }
                 }
                 
@@ -144,7 +144,7 @@ struct BudgetCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Spent")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(budget.currentSpent(expenses: expenses)))
                         .font(.subheadline)
@@ -157,7 +157,7 @@ struct BudgetCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("Budget")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(budget.monthlyLimit))
                         .font(.subheadline)
@@ -171,7 +171,7 @@ struct BudgetCard: View {
                 HStack {
                     Text("Progress")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Spacer()
                     
@@ -191,7 +191,7 @@ struct BudgetCard: View {
             HStack {
                 Text(remaining >= 0 ? "Remaining:" : "Over by:")
                     .font(.caption)
-                    .foregroundColor(.aurumSecondaryText)
+                    .foregroundColor(.aurumGray)
                 
                 Spacer()
                 
