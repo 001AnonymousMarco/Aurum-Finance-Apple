@@ -738,7 +738,6 @@ struct TransactionFiltersSheet: View {
                         .foregroundColor(.aurumGold)
                     }
                 }
-                }
                 #endif
             }
         }
