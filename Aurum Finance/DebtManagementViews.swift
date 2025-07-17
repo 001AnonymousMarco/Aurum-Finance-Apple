@@ -38,7 +38,7 @@ struct DebtOverviewCard: View {
                     Text(formatCurrency(financeStore.liabilities.reduce(0) { $0 + $1.balance }))
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(hex: "#FF3B30"))
+                        .foregroundColor(.aurumRed)
                 }
                 
                 Spacer()
@@ -87,11 +87,11 @@ struct DebtOverviewCard: View {
             if financeStore.debtToIncomeRatio > 0.36 {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(Color(hex: "#FF3B30"))
+                        .foregroundColor(.aurumRed)
                     
                     Text("High debt-to-income ratio. Consider debt consolidation or extra payments.")
                         .font(.caption)
-                        .foregroundColor(Color(hex: "#FF3B30"))
+                        .foregroundColor(.aurumRed)
                         .multilineTextAlignment(.leading)
                 }
                 .padding(.top, 8)
@@ -234,11 +234,11 @@ struct EnhancedLiabilityCard: View {
                 if liability.isHighInterest {
                     HStack {
                         Image(systemName: "flame.fill")
-                            .foregroundColor(Color(hex: "#FF3B30"))
+                            .foregroundColor(.aurumRed)
                         Text("High Interest")
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(Color(hex: "#FF3B30"))
+                            .foregroundColor(.aurumRed)
                     }
                 }
             }
@@ -504,7 +504,7 @@ struct EnhancedLiabilitiesView: View {
                             Spacer()
                             
                             Image(systemName: "flame.fill")
-                                .foregroundColor(Color(hex: "#FF3B30"))
+                                .foregroundColor(.aurumRed)
                         }
                         
                         ForEach(financeStore.highPriorityDebts) { liability in
