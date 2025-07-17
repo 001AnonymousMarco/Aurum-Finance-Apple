@@ -1138,6 +1138,7 @@ struct LiabilitiesView: View {
                         .font(.headline)
                         .foregroundColor(.aurumGold)
                 }
+                }
             }
         }
     }
