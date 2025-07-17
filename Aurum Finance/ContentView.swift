@@ -32,74 +32,74 @@ struct ContentView: View {
                     .toolbar {
                         ToolbarItem(placement: toolbarPlacement) {
                             profileButton
-                        }
                     }
-            }
+                }
+        }
             .environmentObject(financeStore)
             .tabItem {
                 Image(systemName: "house.fill")
                 Text("Dashboard")
-            }
+        }
             .tag(0)
             
             NavigationStack {
                 TransactionsView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
-            }
+        }
             .environmentObject(financeStore)
             .tabItem {
                 Image(systemName: "list.bullet")
                 Text("Transactions")
-            }
+        }
             .tag(1)
             
             NavigationStack {
                 SavingsGoalsView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
-            }
+        }
             .environmentObject(financeStore)
             .tabItem {
                 Image(systemName: "target")
                 Text("Goals")
-            }
+        }
             .tag(2)
             
             NavigationStack {
                 BudgetListView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
-            }
+        }
             .environmentObject(financeStore)
             .tabItem {
                 Image(systemName: "chart.pie")
                 Text("Budgets")
-            }
+        }
             .tag(3)
             
             NavigationStack {
                 RecurringTransactionsListView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
-            }
+        }
             .environmentObject(financeStore)
             .tabItem {
                 Image(systemName: "arrow.clockwise.circle")
                 Text("Recurring")
-            }
+        }
             .tag(4)
             
             NavigationStack {
                 EnhancedLiabilitiesView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
-            }
+        }
             .environmentObject(financeStore)
             .tabItem {
                 Image(systemName: "creditcard")
                 Text("Debts")
-            }
+        }
             .tag(5)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -117,10 +117,10 @@ struct ContentView: View {
                         AddSavingsGoalView()
                     case .liability:
                         AddLiabilityView()
-                    }
                 }
-                .environmentObject(financeStore)
             }
+                .environmentObject(financeStore)
+        }
             #if os(macOS)
             .frame(minWidth: 500, minHeight: 700)
             #endif
@@ -132,13 +132,13 @@ struct ContentView: View {
             if let email = firebaseManager.currentUser?.email {
                 Text(email)
                     .foregroundColor(.aurumGray)
-            }
+        }
             
             Divider()
             
             Button(role: .destructive, action: signOut) {
                 Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
-            }
+        }
         } label: {
             Image(systemName: "person.circle.fill")
                 .foregroundColor(.aurumGold)
@@ -172,7 +172,7 @@ struct FloatingAddButton: View {
                         sheetType = .income
                         showingSheet = true
                         showingOptions = false
-                    }
+                }
                     
                     FloatingActionButton(
                         icon: "minus.circle.fill",
@@ -182,7 +182,7 @@ struct FloatingAddButton: View {
                         sheetType = .expense
                         showingSheet = true
                         showingOptions = false
-                    }
+                }
                     
                     FloatingActionButton(
                         icon: "target",
@@ -192,7 +192,7 @@ struct FloatingAddButton: View {
                         sheetType = .savingsGoal
                         showingSheet = true
                         showingOptions = false
-                    }
+                }
                     
                     FloatingActionButton(
                         icon: "creditcard.fill",
@@ -202,16 +202,16 @@ struct FloatingAddButton: View {
                         sheetType = .liability
                         showingSheet = true
                         showingOptions = false
-                    }
                 }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
             
             Button(action: {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     showingOptions.toggle()
-                }
-            }) {
+            }
+        }) {
                 Image(systemName: showingOptions ? "xmark" : "plus")
                     .font(.title2)
                     .fontWeight(.semibold)
@@ -221,7 +221,7 @@ struct FloatingAddButton: View {
                     .clipShape(Circle())
                     .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                     .rotationEffect(.degrees(showingOptions ? 45 : 0))
-            }
+        }
         }
     }
 }
@@ -245,7 +245,7 @@ struct FloatingActionButton: View {
                     .foregroundColor(.white)
                 
                 Spacer()
-            }
+        }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color.aurumCard)
@@ -281,11 +281,11 @@ struct TransactionsView: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(Color.aurumDark)
-                }
+            }
                 
                 // Transactions List
                 TransactionsList(transactions: financeStore.filteredTransactions)
-            }
+        }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.aurumDark)
             .navigationTitle("Transactions")
@@ -298,13 +298,13 @@ struct TransactionsView: View {
                         Image(systemName: "plus")
                             .font(.headline)
                             .foregroundColor(.aurumGold)
-                    }
                 }
             }
+        }
             .sheet(isPresented: $showingFilterSheet) {
                 TransactionFiltersSheet()
                     .environmentObject(financeStore)
-            }
+        }
             .sheet(isPresented: $showingAddSheet) {
                 NavigationView {
                     Group {
@@ -317,11 +317,11 @@ struct TransactionsView: View {
                             AddSavingsGoalView()
                         case .liability:
                             AddLiabilityView()
-                        }
                     }
-                    .environmentObject(financeStore)
                 }
+                    .environmentObject(financeStore)
             }
+        }
         }
     }
     
@@ -354,9 +354,9 @@ struct TransactionFilterHeader: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.aurumGray)
                             .font(.system(size: 16))
-                    }
                 }
             }
+        }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color.aurumDark)
@@ -370,7 +370,7 @@ struct TransactionFilterHeader: View {
                     .padding(12)
                     .background(Color.aurumDark)
                     .cornerRadius(10)
-            }
+        }
         }
     }
 }
@@ -390,31 +390,31 @@ struct ActiveFiltersView: View {
                         title: financeStore.selectedDateRange.displayName,
                         onRemove: { financeStore.selectedDateRange = .thisMonth }
                     )
-                }
+            }
                 
                 if let transactionType = financeStore.selectedTransactionType {
                     RemovableFilterChip(
                         title: transactionType.rawValue,
                         onRemove: { financeStore.selectedTransactionType = nil }
                     )
-                }
+            }
                 
                 if let category = financeStore.selectedExpenseCategory {
                     RemovableFilterChip(
                         title: category.rawValue,
                         onRemove: { financeStore.selectedExpenseCategory = nil }
                     )
-                }
+            }
                 
                 Button("Clear All") {
                     financeStore.selectedDateRange = .thisMonth
                     financeStore.selectedTransactionType = nil
                     financeStore.selectedExpenseCategory = nil
-                }
+            }
                 .font(.caption)
                 .foregroundColor(.aurumGold)
                 .padding(.leading, 8)
-            }
+        }
             .padding(.horizontal, 16)
         }
     }
@@ -434,7 +434,7 @@ struct RemovableFilterChip: View {
                 Image(systemName: "xmark")
                     .font(.system(size: 10))
                     .foregroundColor(.aurumGray)
-            }
+        }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
@@ -461,7 +461,7 @@ struct TransactionsList: View {
                     .font(.subheadline)
                     .foregroundColor(.aurumGray)
                     .multilineTextAlignment(.center)
-            }
+        }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding()
         } else {
@@ -472,11 +472,11 @@ struct TransactionsList: View {
                             date: date,
                             transactions: groupedTransactions[date] ?? []
                         )
-                    }
                 }
+            }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 100) // Extra padding for tab bar
-            }
+        }
         }
     }
     
@@ -505,7 +505,7 @@ struct TransactionDateSection: View {
                 return result + transaction.amount
             case .expense:
                 return result - transaction.amount
-            }
+        }
         }
     }
     
@@ -524,7 +524,7 @@ struct TransactionDateSection: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(totalAmount >= 0 ? .aurumGreen : .aurumRed)
-            }
+        }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color.aurumCard)
@@ -543,9 +543,9 @@ struct TransactionDateSection: View {
                         Divider()
                             .background(Color.aurumGray.opacity(0.3))
                             .padding(.leading, 72)
-                    }
                 }
             }
+        }
             .background(Color.aurumCard)
             .cornerRadius(8)
         }
@@ -587,8 +587,8 @@ struct EnhancedTransactionRow: View {
                     Text(timeFormatter.string(from: transaction.date))
                         .font(.caption)
                         .foregroundColor(.aurumGray)
-                }
             }
+        }
             
             Spacer()
             
@@ -598,7 +598,7 @@ struct EnhancedTransactionRow: View {
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(transaction.type == .income ? .aurumGreen : .aurumRed)
-            }
+        }
         }
     }
     
@@ -633,9 +633,9 @@ struct TransactionFiltersSheet: View {
                                 isSelected: financeStore.selectedDateRange.id == range.id,
                                 action: { financeStore.selectedDateRange = range }
                             )
-                        }
                     }
                 }
+            }
                 
                 // Transaction Type Filter
                 VStack(alignment: .leading, spacing: 16) {
@@ -657,11 +657,11 @@ struct TransactionFiltersSheet: View {
                                 isSelected: financeStore.selectedTransactionType == type,
                                 action: { financeStore.selectedTransactionType = type }
                             )
-                        }
+                    }
                         
                         Spacer()
-                    }
                 }
+            }
                 
                 // Expense Category Filter (only if expense type is selected)
                 if financeStore.selectedTransactionType == .expense || financeStore.selectedTransactionType == nil {
@@ -687,13 +687,13 @@ struct TransactionFiltersSheet: View {
                                     isSelected: financeStore.selectedExpenseCategory == category,
                                     action: { financeStore.selectedExpenseCategory = category }
                                 )
-                            }
                         }
                     }
                 }
+            }
                 
                 Spacer()
-            }
+        }
             .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.aurumDark)
@@ -708,37 +708,37 @@ struct TransactionFiltersSheet: View {
                         financeStore.selectedDateRange = .thisMonth
                         financeStore.selectedTransactionType = nil
                         financeStore.selectedExpenseCategory = nil
-                    }
-                    .foregroundColor(.aurumGold)
                 }
+                    .foregroundColor(.aurumGold)
+            }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         presentationMode.wrappedValue.dismiss()
-                    }
+                }
                     .fontWeight(.semibold)
                     .foregroundColor(.aurumGold)
-                }
+            }
                 #else
                 ToolbarItem(placement: .primaryAction) {
                         Button("Reset") {
                             financeStore.selectedDateRange = .thisMonth
                             financeStore.selectedTransactionType = nil
                             financeStore.selectedExpenseCategory = nil
-                        }
+                    }
                         .foregroundColor(.aurumGold)
                         
                         Spacer()
                         
                         Button("Done") {
                             presentationMode.wrappedValue.dismiss()
-                        }
+                    }
                         .fontWeight(.semibold)
                         .foregroundColor(.aurumGold)
-                    }
                 }
-                #endif
             }
+                #endif
+        }
         }
     }
 }
@@ -795,7 +795,7 @@ struct TransactionDateGroup: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(group.totalAmount >= 0 ? .aurumGreen : .aurumRed)
-            }
+        }
             .padding(.vertical, 12)
             
             VStack(spacing: 0) {
@@ -805,9 +805,9 @@ struct TransactionDateGroup: View {
                     if transaction.id != group.transactions.last?.id {
                         Divider()
                             .background(Color.aurumGray.opacity(0.3))
-                    }
                 }
             }
+        }
             .cardStyle()
             .padding(.bottom, 16)
         }
@@ -898,12 +898,12 @@ struct SavingsGoalsView: View {
                                     .padding(.vertical, 12)
                                     .background(Color.aurumGold)
                                     .cornerRadius(25)
-                            }
-                            .padding(.top, 8)
                         }
+                            .padding(.top, 8)
+                    }
                         .frame(maxWidth: .infinity)
                         .padding(.top, geometry.size.height * 0.2)
-                    } else {
+                } else {
                         VStack(spacing: 24) {
                             // Overall Progress Card
                             VStack(spacing: 16) {
@@ -918,12 +918,12 @@ struct SavingsGoalsView: View {
                                         .font(.title2)
                                         .fontWeight(.bold)
                                         .foregroundColor(.aurumGold)
-                                }
+                            }
                                 
                                 ProgressView(value: totalProgress)
                                     .progressViewStyle(LinearProgressViewStyle(tint: .aurumGold))
                                     .scaleEffect(x: 1, y: 2, anchor: .center)
-                            }
+                        }
                             .padding(20)
                             .cardStyle()
                             .frame(maxWidth: min(800, geometry.size.width * 0.9))
@@ -936,7 +936,7 @@ struct SavingsGoalsView: View {
                                         isSelected: selectedCategory == nil
                                     ) {
                                         selectedCategory = nil
-                                    }
+                                }
                                     
                                     ForEach(SavingsGoal.GoalCategory.allCases, id: \.self) { category in
                                         FilterPill(
@@ -944,11 +944,11 @@ struct SavingsGoalsView: View {
                                             isSelected: selectedCategory == category
                                         ) {
                                             selectedCategory = category
-                                        }
                                     }
                                 }
-                                .padding(.horizontal, geometry.size.width * 0.05)
                             }
+                                .padding(.horizontal, geometry.size.width * 0.05)
+                        }
                             
                             // Goals Grid
                             let columns = [
@@ -962,16 +962,16 @@ struct SavingsGoalsView: View {
                                 ForEach(filteredGoals) { goal in
                                     SavingsGoalCard(goal: goal)
                                         .frame(height: 160)
-                                }
                             }
+                        }
                             .padding(.horizontal, geometry.size.width * 0.05)
                             .padding(.bottom, 24)
-                        }
-                        .padding(.top, 16)
                     }
+                        .padding(.top, 16)
                 }
-                .frame(minHeight: geometry.size.height)
             }
+                .frame(minHeight: geometry.size.height)
+        }
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("Savings Goals")
@@ -982,7 +982,7 @@ struct SavingsGoalsView: View {
             NavigationView {
                 AddSavingsGoalView()
                     .environmentObject(financeStore)
-            }
+        }
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -990,9 +990,9 @@ struct SavingsGoalsView: View {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
-                }
             }
-            }
+        }
+        }
         }
     }
 }
@@ -1040,13 +1040,13 @@ struct LiabilitiesView: View {
                             Button(action: { showingAddLiability = true }) {
                                 Text("Add Liability")
                                     .font(.headline)
-                            }
+                        }
                             .goldButton()
                             .padding(.top, 8)
-                        }
+                    }
                         .frame(maxWidth: .infinity)
                         .padding(.top, geometry.size.height * 0.2)
-                    } else {
+                } else {
                         VStack(spacing: 24) {
                             // Summary Cards
                             HStack(spacing: 16) {
@@ -1060,7 +1060,7 @@ struct LiabilitiesView: View {
                                         .font(.title2)
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
-                                }
+                            }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(20)
                                 .cardStyle()
@@ -1075,11 +1075,11 @@ struct LiabilitiesView: View {
                                         .font(.title2)
                                         .fontWeight(.bold)
                                         .foregroundColor(.aurumRed)
-                                }
+                            }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(20)
                                 .cardStyle()
-                            }
+                        }
                             .frame(maxWidth: min(800, geometry.size.width * 0.9))
                             .padding(.horizontal, geometry.size.width * 0.05)
                             
@@ -1091,7 +1091,7 @@ struct LiabilitiesView: View {
                                         isSelected: selectedType == nil
                                     ) {
                                         selectedType = nil
-                                    }
+                                }
                                     
                                     ForEach(Liability.LiabilityType.allCases, id: \.self) { type in
                                         FilterPill(
@@ -1099,27 +1099,27 @@ struct LiabilitiesView: View {
                                             isSelected: selectedType == type
                                         ) {
                                             selectedType = type
-                                        }
                                     }
                                 }
-                                .padding(.horizontal, geometry.size.width * 0.05)
                             }
+                                .padding(.horizontal, geometry.size.width * 0.05)
+                        }
                             
                             // Liabilities List
                             VStack(spacing: 16) {
                                 ForEach(filteredLiabilities) { liability in
                                     LiabilityCard(liability: liability)
                                         .frame(maxWidth: min(800, geometry.size.width * 0.9))
-                                }
                             }
+                        }
                             .padding(.horizontal, geometry.size.width * 0.05)
                             .padding(.bottom, 24)
-                        }
-                        .padding(.top, 16)
                     }
+                        .padding(.top, 16)
                 }
-                .frame(minHeight: geometry.size.height)
             }
+                .frame(minHeight: geometry.size.height)
+        }
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("Liabilities")
@@ -1130,15 +1130,15 @@ struct LiabilitiesView: View {
             NavigationView {
                 AddLiabilityView()
                     .environmentObject(financeStore)
-            }
+        }
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
-                }
             }
+        }
         }
     }
 }
@@ -1157,14 +1157,14 @@ struct LiabilityCard: View {
                     Text(liability.type.rawValue)
                         .font(.subheadline)
                         .foregroundColor(.aurumGray)
-                }
+            }
                 
                 Spacer()
                 
                 Image(systemName: liability.type.icon)
                     .font(.title2)
                     .foregroundColor(Color(hex: liability.type.color))
-            }
+        }
             
             Divider()
                 .background(Color.aurumGray.opacity(0.3))
@@ -1178,7 +1178,7 @@ struct LiabilityCard: View {
                     Text(liability.balance.currencyFormatted)
                         .font(.headline)
                         .foregroundColor(.white)
-                }
+            }
                 
                 Spacer()
                 
@@ -1190,7 +1190,7 @@ struct LiabilityCard: View {
                     Text("\(String(format: "%.1f", liability.interestRate))%")
                         .font(.headline)
                         .foregroundColor(.aurumOrange)
-                }
+            }
                 
                 Spacer()
                 
@@ -1202,8 +1202,8 @@ struct LiabilityCard: View {
                     Text(liability.dueDate.shortFormatted)
                         .font(.headline)
                         .foregroundColor(.aurumRed)
-                }
             }
+        }
         }
         .padding(20)
         .cardStyle()
