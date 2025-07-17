@@ -524,27 +524,7 @@ struct EnhancedLiabilitiesView: View {
                     }
                 }
                 
-                // Add new debt button
-                Button(action: { showingAddDebt = true }) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title3)
-                            .foregroundColor(.aurumPurple)
-                        
-                        Text("Add New Debt")
-                            .font(.headline)
-                            .foregroundColor(.aurumText)
-                        
-                        Spacer()
-                    }
-                    .padding(16)
-                    .background(Color.aurumCard)
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.aurumBorder, lineWidth: 1)
-                    )
-                }
+
             }
             .padding(16)
         }
