@@ -22,7 +22,7 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
                     .toolbar {
-                        ToolbarItem(placement: .primaryAction) {
+                        ToolbarItem(placement: toolbarPlacement) {
                             profileButton
                         }
                     }
@@ -286,7 +286,6 @@ struct TransactionsView: View {
             #endif
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddSheet = true }) {
                         Image(systemName: "plus")
                             .font(.headline)
                             .foregroundColor(.aurumGold)
@@ -713,7 +712,6 @@ struct TransactionFiltersSheet: View {
                 }
                 #else
                 ToolbarItem(placement: .primaryAction) {
-                    HStack {
                         Button("Reset") {
                             financeStore.selectedDateRange = .thisMonth
                             financeStore.selectedTransactionType = nil
@@ -979,7 +977,6 @@ struct SavingsGoalsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { showingAddGoal = true }) {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
@@ -1126,7 +1123,6 @@ struct LiabilitiesView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { showingAddLiability = true }) {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
