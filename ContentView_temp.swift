@@ -992,7 +992,6 @@ struct SavingsGoalsView: View {
                         .foregroundColor(.aurumGold)
                 }
             }
-            }
         }
     }
 }
