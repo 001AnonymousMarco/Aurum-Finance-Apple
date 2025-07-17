@@ -294,9 +294,11 @@ struct TransactionsView: View {
             #endif
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
+                    Button(action: { showingAddSheet = true }) {
                         Image(systemName: "plus")
                             .font(.headline)
                             .foregroundColor(.aurumGold)
+                    }
                     }
                 }
             }
