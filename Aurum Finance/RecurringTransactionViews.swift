@@ -254,6 +254,15 @@ struct RecurringTransactionsListView: View {
         }
         .background(Color.aurumDark)
         .navigationTitle("Recurring")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddRecurring = true }) {
+                    Image(systemName: "plus")
+                        .font(.headline)
+                        .foregroundColor(.aurumGold)
+                }
+            }
+        }
         .sheet(isPresented: $showingAddRecurring) {
             AddRecurringTransactionView()
                 .environmentObject(financeStore)
