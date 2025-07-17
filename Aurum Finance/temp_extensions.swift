@@ -246,3 +246,41 @@ extension Image {
     static let aurumDelete = Image(systemName: "trash.circle.fill")
     static let aurumSettings = Image(systemName: "gear.circle.fill")
     static let aurumInfo = Image(systemName: "info.circle.fill")
+    static let aurumInfo = Image(systemName: "info.circle.fill")
+    static let aurumClose = Image(systemName: "xmark.circle.fill")
+}
+
+// MARK: - Spacing Constants
+
+extension CGFloat {
+    static let spacingXS: CGFloat = 4
+    static let spacingS: CGFloat = 8
+    static let spacingM: CGFloat = 16
+    static let spacingL: CGFloat = 24
+    static let spacingXL: CGFloat = 32
+    static let spacingXXL: CGFloat = 48
+}
+
+// MARK: - Spacing View Extensions
+
+extension View {
+    func cardPadding() -> some View {
+        self.padding(.spacingM)
+    }
+    
+    func formPadding() -> some View {
+        self.padding(.spacingL)
+    }
+    
+    func sectionPadding() -> some View {
+        self.padding(.vertical, .spacingM)
+    }
+    
+    func elementSpacing() -> some View {
+        self.padding(.spacingS)
+    }
+    
+    func pageMargins() -> some View {
+        self.padding(.spacingL)
+    }
+}
