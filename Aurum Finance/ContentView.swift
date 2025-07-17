@@ -14,6 +14,14 @@ struct ContentView: View {
     @State private var showingAddSheet = false
     @State private var addSheetType: AddSheetType = .income
     @State private var showingProfileMenu = false
+
+    private var toolbarPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .navigationBarTrailing
+        #else
+        return .primaryAction
+        #endif
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
