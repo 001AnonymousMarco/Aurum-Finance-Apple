@@ -221,9 +221,36 @@ struct BudgetListView: View {
                 // Budget overview
                 BudgetOverviewCard(analysis: financeStore.budgetAnalysis)
                 
-                // Individual budgets
-                ForEach(financeStore.budgets.filter { $0.isActive }) { budget in
-                    BudgetCard(budget: budget, expenses: financeStore.expenses)
+                // Individual budgets or empty state
+                if financeStore.budgets.filter({ $0.isActive }).isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "chart.pie")
+                            .font(.system(size: 48))
+                            .foregroundColor(.aurumGray)
+                        
+                        Text("No budgets yet")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        Text("Create your first budget to track spending categories")
+                            .font(.subheadline)
+                            .foregroundColor(.aurumGray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                        
+                        Button(action: { showingAddBudget = true }) {
+                            Text("Create Budget")
+                                .font(.headline)
+                        }
+                        .goldButton()
+                        .padding(.top, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 32)
+                } else {
+                    ForEach(financeStore.budgets.filter { $0.isActive }) { budget in
+                        BudgetCard(budget: budget, expenses: financeStore.expenses)
+                    }
                 }
             }
             .padding(16)
