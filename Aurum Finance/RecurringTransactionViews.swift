@@ -16,7 +16,7 @@ struct RecurringTransactionsOverviewCard: View {
                     
                     Text("\(financeStore.recurringTransactions.filter { $0.isActive }.count) active schedules")
                         .font(.subheadline)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                 }
                 
                 Spacer()
@@ -33,7 +33,7 @@ struct RecurringTransactionsOverviewCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Monthly Income")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(financeStore.totalMonthlyRecurringIncome))
                         .font(.headline)
@@ -46,7 +46,7 @@ struct RecurringTransactionsOverviewCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("Monthly Expenses")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatCurrency(financeStore.totalMonthlyRecurringExpenses))
                         .font(.headline)
@@ -101,7 +101,7 @@ struct RecurringTransactionCard: View {
                     
                     Text(transaction.frequency.rawValue)
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                 }
                 .frame(width: 60)
                 
@@ -112,7 +112,7 @@ struct RecurringTransactionCard: View {
                     
                     Text(transaction.category)
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     if let description = transaction.description {
                         Text(description)
@@ -132,7 +132,7 @@ struct RecurringTransactionCard: View {
                     
                     Text(transaction.isIncome ? "Income" : "Expense")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                 }
             }
             
@@ -141,7 +141,7 @@ struct RecurringTransactionCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Next Due")
                         .font(.caption)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                     
                     Text(formatDate(transaction.nextDue))
                         .font(.subheadline)
