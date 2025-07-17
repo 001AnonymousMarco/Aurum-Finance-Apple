@@ -1,0 +1,126 @@
+---
+alwaysApply: true
+---
+### 2. Dashboards and Visualization
+
+- **Net Worth Snapshot:** Total assets minus liabilities.
+- **Income vs. Expense Chart:** Line/bar comparison by month.
+- **Expense Breakdown:** Donut/pie chart by category.
+- **Savings Goal Progress:** Card-based goal progress tracker.
+- **Recent Transactions:** List of the latest activity.
+- **Interactive Charts:** Click to view deeper breakdowns.
+- **Customizable Layout:** Drag/drop UI to prioritize widgets.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer       | Technology                    |
+|------------|-------------------------------|
+| Frontend    | React + TailwindCSS           |
+| Charts      | Recharts or Chart.js          |
+| Backend     | Node.js + Express OR Firebase Functions |
+| Database    | Firebase Firestore / Supabase |
+| Auth        | Firebase Auth / Clerk.dev     |
+| State Mgmt  | Zustand / Redux Toolkit       |
+| Deployment  | Vercel / Netlify              |
+| Storage     | Firebase Storage              |
+
+---
+
+## 🧱 File Structure
+
+```
+aurum-finance/
+│
+├── public/
+│   └── index.html
+│
+├── src/
+│   ├── assets/
+│   │   └── icons/, images/
+│   │
+│   ├── components/
+│   │   ├── Dashboard/
+│   │   │   ├── NetWorthCard.tsx
+│   │   │   ├── IncomeExpenseChart.tsx
+│   │   │   ├── ExpenseBreakdownChart.tsx
+│   │   │   ├── SavingsGoalCard.tsx
+│   │   │   └── RecentTransactions.tsx
+│   │   │
+│   │   ├── Inputs/
+│   │   │   ├── IncomeForm.tsx
+│   │   │   ├── ExpenseForm.tsx
+│   │   │   ├── SavingsGoalForm.tsx
+│   │   │   └── LiabilityForm.tsx
+│   │   │
+│   │   └── Shared/
+│   │       ├── Navbar.tsx
+│   │       ├── Sidebar.tsx
+│   │       └── ChartWrapper.tsx
+│   │
+│   ├── pages/
+│   │   ├── Dashboard.tsx
+│   │   ├── Transactions.tsx
+│   │   ├── Goals.tsx
+│   │   └── Liabilities.tsx
+│   │
+│   ├── context/
+│   │   └── FinanceContext.tsx
+│   │
+│   ├── services/
+│   │   ├── firebase.ts
+│   │   └── api.ts
+│   │
+│   ├── types/
+│   │   └── index.d.ts
+│   │
+│   ├── utils/
+│   │   ├── calculateNetWorth.ts
+│   │   ├── formatCurrency.ts
+│   │   └── dateUtils.ts
+│   │
+│   └── main.tsx
+│
+├── .env
+├── .gitignore
+├── package.json
+└── README.md
+```
+
+---
+
+## 📊 KPIs – Success Metrics
+
+- ✅ Add/edit/delete transactions for all categories.
+- ✅ Dashboard components dynamically reflect new data.
+- ✅ Charts are fully interactive and update live.
+- ✅ Custom dashboard layout is persistent across sessions.
+
+---
+
+## 🔮 Post-MVP Vision
+
+- 🔐 Bank API integration (Plaid, Salt Edge)
+- 🧠 Budget AI assistant
+- 🧾 OCR receipt scanning
+- 🔔 Payment reminders
+- 📄 Export to PDF/CSV
+
+---
+
+## ⚙️ Cursor IDE – `project.json` Configuration
+
+```json
+{
+  "projectName": "aurum-finance",
+  "entryPoint": "src/main.tsx",
+  "type": "react",
+  "stateManagement": "zustand",
+  "useTailwind": true,
+  "deploymentTarget": "vercel",
+  "environments": ["development", "production"],
+  "auth": "firebase-auth",
+  "dataStorage": "firebase-firestore"
+}
+```
