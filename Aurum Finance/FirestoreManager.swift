@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseFirestore
+import Combine
 
 @MainActor
 class FirestoreManager: ObservableObject {
@@ -12,20 +13,44 @@ class FirestoreManager: ObservableObject {
     @Published var liabilities: [Liability] = []
     
     private var listeners: [ListenerRegistration] = []
+    private var cancellables: Set<AnyCancellable> = []
     
     init() {
-        setupListeners()
+        FirebaseManager.shared.$currentUser
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] user in
+                self?.setupListeners(for: user?.uid)
+            }
+            .store(in: &cancellables)
     }
     
-    deinit {
-        // Remove all listeners when the manager is deallocated
+    private func setupListeners(for userId: String?) {
+        // 1. Remove all existing listeners to prevent duplicate data or crashes.
         listeners.forEach { $0.remove() }
+        listeners.removeAll()
+        
+        // 2. Clear all local data arrays when the user changes (e.g., on logout).
+        incomes.removeAll()
+        expenses.removeAll()
+        savingsGoals.removeAll()
+        liabilities.removeAll()
+        
+        // 3. Guard against a nil user ID. If the user is logged out, stop here.
+        guard let userId = userId else {
+            print("FirestoreManager: User is not authenticated. Listeners cleared.")
+            return
+        }
+        
+        print("FirestoreManager: Setting up new listeners for user \(userId)...")
+        
+        // 4. Set up listeners for authenticated user
+        setupIncomeListener(userId: userId)
+        setupExpenseListener(userId: userId)
+        setupSavingsGoalListener(userId: userId)
+        setupLiabilityListener(userId: userId)
     }
     
-    private func setupListeners() {
-        guard let userId = auth.currentUser?.uid else { return }
-        
-        // Listen for incomes
+    private func setupIncomeListener(userId: String) {
         let incomeListener = db.collection("users/\(userId)/incomes")
             .order(by: "date", descending: true)
             .addSnapshotListener { [weak self] snapshot, error in
@@ -39,8 +64,9 @@ class FirestoreManager: ObservableObject {
                 }
             }
         listeners.append(incomeListener)
-        
-        // Listen for expenses
+    }
+    
+    private func setupExpenseListener(userId: String) {
         let expenseListener = db.collection("users/\(userId)/expenses")
             .order(by: "date", descending: true)
             .addSnapshotListener { [weak self] snapshot, error in
@@ -54,8 +80,9 @@ class FirestoreManager: ObservableObject {
                 }
             }
         listeners.append(expenseListener)
-        
-        // Listen for savings goals
+    }
+    
+    private func setupSavingsGoalListener(userId: String) {
         let goalsListener = db.collection("users/\(userId)/savingsGoals")
             .addSnapshotListener { [weak self] snapshot, error in
                 guard let documents = snapshot?.documents else {
@@ -68,8 +95,9 @@ class FirestoreManager: ObservableObject {
                 }
             }
         listeners.append(goalsListener)
-        
-        // Listen for liabilities
+    }
+    
+    private func setupLiabilityListener(userId: String) {
         let liabilitiesListener = db.collection("users/\(userId)/liabilities")
             .addSnapshotListener { [weak self] snapshot, error in
                 guard let documents = snapshot?.documents else {
