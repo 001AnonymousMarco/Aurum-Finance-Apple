@@ -897,7 +897,6 @@ struct SavingsGoalsView: View {
                             }
                             .goldButton()
                             .padding(.top, 8)
-                            .padding(.top, 8)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, geometry.size.height * 0.2)
