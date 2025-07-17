@@ -12,7 +12,7 @@ struct RecurringTransactionsOverviewCard: View {
                     Text("Recurring Transactions")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                     
                     Text("\(financeStore.recurringTransactions.filter { $0.isActive }.count) active schedules")
                         .font(.subheadline)
@@ -108,7 +108,7 @@ struct RecurringTransactionCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(transaction.name)
                         .font(.headline)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                     
                     Text(transaction.category)
                         .font(.caption)
@@ -258,7 +258,7 @@ struct RecurringTransactionsListView: View {
                             
                             Text("Add Recurring Transaction")
                                 .font(.headline)
-                                .foregroundColor(.aurumText)
+                                .foregroundColor(.white)
                             
                             Spacer()
                         }
