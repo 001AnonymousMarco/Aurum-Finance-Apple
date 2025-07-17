@@ -1133,11 +1133,9 @@ struct LiabilitiesView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddLiability = true }) {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
-                }
                 }
             }
         }
