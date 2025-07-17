@@ -721,6 +721,7 @@ struct TransactionFiltersSheet: View {
                 }
                 #else
                 ToolbarItem(placement: .primaryAction) {
+                    HStack {
                         Button("Reset") {
                             financeStore.selectedDateRange = .thisMonth
                             financeStore.selectedTransactionType = nil
@@ -736,6 +737,7 @@ struct TransactionFiltersSheet: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.aurumGold)
                     }
+                }
                 }
                 #endif
             }
