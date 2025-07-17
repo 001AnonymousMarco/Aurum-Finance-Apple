@@ -295,7 +295,7 @@ struct TransactionsView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }) {
-                        Image(systemName: "plus")
+                        Image(systemName: "plus.circle.fill")
                             .font(.headline)
                             .foregroundColor(.aurumGold)
                     }
@@ -987,7 +987,7 @@ struct SavingsGoalsView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAddGoal = true }) {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle.fill")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
                 }
@@ -1134,7 +1134,7 @@ struct LiabilitiesView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAddLiability = true }) {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle.fill")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
                 }
