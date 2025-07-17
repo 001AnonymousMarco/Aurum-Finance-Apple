@@ -66,7 +66,7 @@ struct DebtOverviewCard: View {
                     Text("\(Int(ratio * 100))%")
                         .font(.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(ratio > 0.36 ? Color(hex: "#FF3B30") : (ratio > 0.28 ? Color(hex: "#FF9500") : Color(hex: "#34C759")))
+                        .foregroundColor(ratio > 0.36 ? .aurumRed : (ratio > 0.28 ? .aurumWarning : .aurumGreen))
                 }
                 
                 Spacer()
