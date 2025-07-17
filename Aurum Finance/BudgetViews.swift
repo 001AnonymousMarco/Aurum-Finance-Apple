@@ -16,7 +16,7 @@ struct BudgetOverviewCard: View {
                     
                     Text("\(formatCurrency(analysis.totalSpent)) of \(formatCurrency(analysis.totalBudgeted))")
                         .font(.subheadline)
-                        .foregroundColor(.aurumSecondaryText)
+                        .foregroundColor(.aurumGray)
                 }
                 
                 Spacer()
