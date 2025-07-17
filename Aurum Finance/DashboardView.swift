@@ -489,7 +489,6 @@ struct SavingsGoalCard: View {
         .onHover { hovering in
             isHovered = hovering
         }
-        #endif
     }
 }
 }
