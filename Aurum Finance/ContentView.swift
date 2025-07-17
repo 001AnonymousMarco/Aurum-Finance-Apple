@@ -208,7 +208,7 @@ struct FloatingAddButton: View {
             }
             
             Button(action: {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                withAnimation(.aurumSpring) {
                     showingOptions.toggle()
                 }
             }) {
