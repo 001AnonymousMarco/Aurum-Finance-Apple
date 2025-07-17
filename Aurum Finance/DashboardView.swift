@@ -22,6 +22,22 @@ struct DashboardView: View {
                     )
                         .id(financeStore.financialSummary.netWorth)
                     
+                    // Adaptive Layout for Enhanced Sections
+                    #if os(macOS)
+                    HStack(alignment: .top, spacing: 24) {
+                        VStack(spacing: 24) {
+                            enhancedQuickStatsSection(width: geometry.size.width * 0.5)
+                                .id(financeStore.financialSummary.totalIncome)
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        VStack(spacing: 24) {
+                            enhancedChartsSection(width: geometry.size.width * 0.5)
+                                .id(financeStore.financialSummary.totalExpenses)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    #else
                     // Enhanced Quick Stats with Cash Flow Indicators
                     enhancedQuickStatsSection(width: geometry.size.width)
                         .id(financeStore.financialSummary.totalIncome)
@@ -29,6 +45,7 @@ struct DashboardView: View {
                     // Enhanced Charts Section with Better Analytics
                     enhancedChartsSection(width: geometry.size.width)
                         .id(financeStore.financialSummary.totalExpenses)
+                    #endif
                     
                     // Monthly Trends Chart
                     monthlyTrendsSection(width: geometry.size.width)
