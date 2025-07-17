@@ -447,6 +447,7 @@ struct QuickStatCard: View {
 
 struct SavingsGoalCard: View {
     let goal: SavingsGoal
+    @State private var isHovered = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -482,7 +483,15 @@ struct SavingsGoalCard: View {
         .padding(20)
         .frame(width: 200, height: 160)
         .cardStyle()
+        .scaleEffect(isHovered ? 1.05 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isHovered)
+        #if os(macOS)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        #endif
     }
+}
 }
 
 // MARK: - Enhanced Supporting Views
