@@ -59,11 +59,11 @@ struct RecurringTransactionsOverviewCard: View {
             if !financeStore.overdueRecurringTransactions.isEmpty {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(Color(hex: "#FF9500"))
+                        .foregroundColor(.aurumWarning)
                     
                     Text("\(financeStore.overdueRecurringTransactions.count) overdue transaction(s)")
                         .font(.subheadline)
-                        .foregroundColor(Color(hex: "#FF9500"))
+                        .foregroundColor(.aurumWarning)
                     
                     Spacer()
                     
