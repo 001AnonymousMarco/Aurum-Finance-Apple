@@ -225,28 +225,6 @@ struct BudgetListView: View {
                 ForEach(financeStore.budgets.filter { $0.isActive }) { budget in
                     BudgetCard(budget: budget, expenses: financeStore.expenses)
                 }
-                
-                // Add new budget button
-                Button(action: { showingAddBudget = true }) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title3)
-                            .foregroundColor(.aurumPurple)
-                        
-                        Text("Add New Budget")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        
-                        Spacer()
-                    }
-                    .padding(16)
-                    .background(Color.aurumCard)
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.aurumBorder, lineWidth: 1)
-                    )
-                }
             }
             .padding(16)
         }
