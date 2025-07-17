@@ -10,7 +10,7 @@ struct DashboardView: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                LazyVStack(spacing: 24) {
+                LazyVStack(spacing: .spacingL) {
                     // Header
                     headerSection
                         .padding(.top, 16)
