@@ -1032,12 +1032,8 @@ struct LiabilitiesView: View {
                             Button(action: { showingAddLiability = true }) {
                                 Text("Add Liability")
                                     .font(.headline)
-                                    .foregroundColor(.black)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.aurumGold)
-                                    .cornerRadius(25)
                             }
+                            .goldButton()
                             .padding(.top, 8)
                         }
                         .frame(maxWidth: .infinity)
