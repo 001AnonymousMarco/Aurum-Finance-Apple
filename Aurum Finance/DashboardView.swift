@@ -224,10 +224,28 @@ struct DashboardView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            MonthlyTrendsChart(trends: financeStore.monthlyTrends)
+            if financeStore.monthlyTrends.isEmpty {
+                // Empty state for monthly trends
+                VStack(spacing: 16) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 48))
+                        .foregroundColor(.aurumGray)
+                    
+                    Text("Chart appears after 1 month of data")
+                        .font(.subheadline)
+                        .foregroundColor(.aurumGray)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
                 .frame(height: 200)
                 .cardStyle()
+            } else {
+                MonthlyTrendsChart(trends: financeStore.monthlyTrends)
+                    .frame(height: 200)
+                    .cardStyle()
+            }
         }
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Savings Goals Section
