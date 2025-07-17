@@ -248,28 +248,6 @@ struct RecurringTransactionsListView: View {
                     ForEach(filteredTransactions) { transaction in
                         RecurringTransactionCard(transaction: transaction)
                     }
-                    
-                    // Add new recurring transaction button
-                    Button(action: { showingAddRecurring = true }) {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                                .foregroundColor(.aurumPurple)
-                            
-                            Text("Add Recurring Transaction")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            Spacer()
-                        }
-                        .padding(16)
-                        .background(Color.aurumCard)
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.aurumBorder, lineWidth: 1)
-                        )
-                    }
                 }
                 .padding(16)
             }
