@@ -284,7 +284,11 @@ struct TransactionsView: View {
                 }
                 
                 // Transactions List
-                TransactionsList(transactions: financeStore.filteredTransactions)
+                TransactionsList(
+                    transactions: financeStore.filteredTransactions,
+                    showingAddSheet: $showingAddSheet,
+                    addSheetType: $addSheetType
+                )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.aurumDark)
