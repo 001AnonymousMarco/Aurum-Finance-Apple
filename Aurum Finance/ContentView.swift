@@ -986,10 +986,12 @@ struct SavingsGoalsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddGoal = true }) {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
                 }
+            }
             }
         }
     }
