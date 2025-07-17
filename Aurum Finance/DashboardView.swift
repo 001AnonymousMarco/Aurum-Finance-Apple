@@ -492,7 +492,6 @@ struct SavingsGoalCard: View {
         #endif
     }
 }
-}
 
 // MARK: - Enhanced Supporting Views
 
