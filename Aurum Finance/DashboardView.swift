@@ -488,6 +488,8 @@ struct SavingsGoalCard: View {
         #if os(macOS)
         .onHover { hovering in
             isHovered = hovering
+        }
+        #endif
     }
 }
 }
