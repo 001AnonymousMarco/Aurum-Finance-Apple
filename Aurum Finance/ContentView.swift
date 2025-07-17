@@ -894,12 +894,9 @@ struct SavingsGoalsView: View {
                             Button(action: { showingAddGoal = true }) {
                                 Text("Add Goal")
                                     .font(.headline)
-                                    .foregroundColor(.black)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.aurumGold)
-                                    .cornerRadius(25)
                             }
+                            .goldButton()
+                            .padding(.top, 8)
                             .padding(.top, 8)
                         }
                         .frame(maxWidth: .infinity)
