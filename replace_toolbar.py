@@ -6,20 +6,20 @@ import re
 with open('/app/Aurum Finance/ContentView.swift', 'r') as f:
     content = f.read()
 
-# Define the old and new strings
-old_str = """                ToolbarItem(placement: .primaryAction) {
+# Define the old and new strings with correct indentation
+old_str = """            ToolbarItem(placement: .primaryAction) {
                     Image(systemName: "plus")
                         .font(.headline)
                         .foregroundColor(.aurumGold)
                 }"""
 
-new_str = """                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddGoal = true }) {
-                        Image(systemName: "plus")
-                            .font(.headline)
-                            .foregroundColor(.aurumGold)
-                    }
-                }"""
+new_str = """            ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddGoal = true }) {
+                    Image(systemName: "plus")
+                        .font(.headline)
+                        .foregroundColor(.aurumGold)
+                }
+            }"""
 
 # Find all occurrences to see which one to replace
 occurrences = []
