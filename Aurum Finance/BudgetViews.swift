@@ -270,57 +270,132 @@ struct AddBudgetView: View {
     @State private var description = ""
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section("Budget Details") {
-                    TextField("Budget Name", text: $name)
-                        .foregroundColor(.aurumText)
+        ScrollView {
+            VStack(spacing: 24) {
+                // Header
+                VStack(spacing: 8) {
+                    Image(systemName: "chart.pie.fill")
+                        .font(.title)
+                        .foregroundColor(.aurumPurple)
                     
-                    Picker("Category", selection: $selectedCategory) {
-                        ForEach(Expense.ExpenseCategory.allCases, id: \.self) { category in
-                            Label(category.rawValue, systemImage: category.icon)
-                                .tag(category)
+                    Text("Add Budget")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 20)
+                
+                // Form
+                VStack(spacing: 20) {
+                    // Budget Name
+                    FormSection(title: "Budget Name") {
+                        TextField("e.g., Groceries, Entertainment", text: $name)
+                            .aurumTextFieldStyle(placeholder: "e.g., Groceries, Entertainment")
+                    }
+                    
+                    // Category
+                    FormSection(title: "Category") {
+                        CategoryPicker(
+                            selection: $selectedCategory,
+                            categories: Expense.ExpenseCategory.allCases
+                        ) { category in
+                            CategoryRow(
+                                title: category.rawValue,
+                                icon: category.icon,
+                                color: Color(hex: category.color),
+                                isSelected: self.selectedCategory == category
+                            )
                         }
                     }
-                    .foregroundColor(.aurumText)
                     
-                    TextField("Monthly Limit", text: $monthlyLimit)
-                        .keyboardType(.decimalPad)
-                        .foregroundColor(.aurumText)
+                    // Monthly Limit
+                    FormSection(title: "Monthly Limit") {
+                        AmountInputField(amount: $monthlyLimit)
+                    }
                     
-                    TextField("Description (optional)", text: $description)
-                        .foregroundColor(.aurumText)
-                }
-                
-                Section("Alert Settings") {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Alert when reaching \(Int(alertThreshold))% of budget")
-                            .foregroundColor(.aurumText)
-                        
-                        Slider(value: $alertThreshold, in: 50...95, step: 5)
-                            .tint(.aurumPurple)
+                    // Alert Settings
+                    FormSection(title: "Alert Settings") {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Alert when reaching \(Int(alertThreshold))% of budget")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            
+                            VStack(spacing: 8) {
+                                Slider(value: $alertThreshold, in: 50...95, step: 5)
+                                    .tint(.aurumPurple)
+                                
+                                HStack {
+                                    Text("50%")
+                                        .font(.caption)
+                                        .foregroundColor(.aurumGray)
+                                    Spacer()
+                                    Text("95%")
+                                        .font(.caption)
+                                        .foregroundColor(.aurumGray)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.aurumCard)
+                        .cornerRadius(12)
+                    }
+                    
+                    // Description
+                    FormSection(title: "Description (Optional)") {
+                        TextField("Add a note...", text: $description)
+                            .aurumTextFieldStyle(placeholder: "Add a note...")
                     }
                 }
-            }
-            .background(Color.aurumDark)
-            .scrollContentBackground(.hidden)
-            .navigationTitle("Add Budget")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundColor(.aurumSecondaryText)
-                }
+                .padding(.horizontal, 20)
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveBudget()
-                    }
-                    .foregroundColor(.aurumPurple)
-                    .disabled(name.isEmpty || monthlyLimit.isEmpty)
-                }
+                Spacer()
             }
+            .padding(.bottom, 24)
         }
+        .frame(width: 500, height: 700)
+        .background(Color.aurumDark.ignoresSafeArea())
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .toolbar {
+            #if os(iOS)
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
+                }
+                .foregroundColor(.aurumGray)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Save") {
+                    saveBudget()
+                }
+                .fontWeight(.semibold)
+                .foregroundColor(.aurumGold)
+                .disabled(!isValidInput)
+            }
+            #else
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
+                .foregroundColor(.aurumGray)
+            }
+            
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    saveBudget()
+                }
+                .fontWeight(.semibold)
+                .foregroundColor(.aurumGold)
+                .disabled(!isValidInput)
+            }
+            #endif
+        }
+    }
+    
+    private var isValidInput: Bool {
+        !name.isEmpty && !monthlyLimit.isEmpty && Double(monthlyLimit) != nil
     }
     
     private func saveBudget() {

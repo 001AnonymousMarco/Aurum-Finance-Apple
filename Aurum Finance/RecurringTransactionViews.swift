@@ -299,86 +299,208 @@ struct AddRecurringTransactionView: View {
     @State private var description = ""
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section("Transaction Details") {
-                    TextField("Transaction Name", text: $name)
-                        .foregroundColor(.aurumText)
+        ScrollView {
+            VStack(spacing: 24) {
+                // Header
+                VStack(spacing: 8) {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.aurumPurple)
                     
-                    TextField("Amount", text: $amount)
-                        .keyboardType(.decimalPad)
-                        .foregroundColor(.aurumText)
-                    
-                    Picker("Type", selection: $isIncome) {
-                        Text("Expense").tag(false)
-                        Text("Income").tag(true)
+                    Text("Add Recurring Transaction")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 20)
+                
+                // Form
+                VStack(spacing: 20) {
+                    // Name
+                    FormSection(title: "Transaction Name") {
+                        TextField("e.g., Salary, Rent, Netflix", text: $name)
+                            .aurumTextFieldStyle(placeholder: "e.g., Salary, Rent, Netflix")
                     }
-                    .pickerStyle(SegmentedPickerStyle())
                     
-                    if isIncome {
-                        Picker("Category", selection: $selectedIncomeCategory) {
-                            ForEach(Income.IncomeCategory.allCases, id: \.self) { category in
-                                Text(category.rawValue).tag(category)
+                    // Amount
+                    FormSection(title: "Amount") {
+                        AmountInputField(amount: $amount)
+                    }
+                    
+                    // Type Selection
+                    FormSection(title: "Type") {
+                        HStack(spacing: 0) {
+                            Button(action: { 
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isIncome = false 
+                                }
+                            }) {
+                                Text("Expense")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(isIncome ? .aurumGray : .white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(isIncome ? Color.clear : Color.aurumRed)
+                                    .cornerRadius(8, corners: [.topLeft, .bottomLeft])
+                            }
+                            
+                            Button(action: { 
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isIncome = true 
+                                }
+                            }) {
+                                Text("Income")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(isIncome ? .white : .aurumGray)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(isIncome ? Color.aurumGreen : Color.clear)
+                                    .cornerRadius(8, corners: [.topRight, .bottomRight])
                             }
                         }
-                        .foregroundColor(.aurumText)
-                    } else {
-                        Picker("Category", selection: $selectedExpenseCategory) {
-                            ForEach(Expense.ExpenseCategory.allCases, id: \.self) { category in
-                                Text(category.rawValue).tag(category)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.aurumGray.opacity(0.3), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
+                    }
+                    
+                    // Category
+                    FormSection(title: "Category") {
+                        if isIncome {
+                            CategoryPicker(
+                                selection: $selectedIncomeCategory,
+                                categories: Income.IncomeCategory.allCases
+                            ) { category in
+                                CategoryRow(
+                                    title: category.rawValue,
+                                    color: Color(hex: category.color),
+                                    isSelected: self.selectedIncomeCategory == category
+                                )
+                            }
+                        } else {
+                            CategoryPicker(
+                                selection: $selectedExpenseCategory,
+                                categories: Expense.ExpenseCategory.allCases
+                            ) { category in
+                                CategoryRow(
+                                    title: category.rawValue,
+                                    icon: category.icon,
+                                    color: Color(hex: category.color),
+                                    isSelected: self.selectedExpenseCategory == category
+                                )
                             }
                         }
-                        .foregroundColor(.aurumText)
                     }
                     
-                    TextField("Description (optional)", text: $description)
-                        .foregroundColor(.aurumText)
-                }
-                
-                Section("Frequency & Schedule") {
-                    Picker("Frequency", selection: $selectedFrequency) {
-                        ForEach(RecurrenceFrequency.allCases, id: \.self) { frequency in
-                            Label(frequency.rawValue, systemImage: frequency.icon)
-                                .tag(frequency)
+                    // Frequency
+                    FormSection(title: "Frequency") {
+                        CategoryPicker(
+                            selection: $selectedFrequency,
+                            categories: RecurrenceFrequency.allCases
+                        ) { frequency in
+                            CategoryRow(
+                                title: frequency.rawValue,
+                                icon: frequency.icon,
+                                color: Color.aurumPurple,
+                                isSelected: self.selectedFrequency == frequency
+                            )
                         }
                     }
-                    .foregroundColor(.aurumText)
                     
-                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                        .foregroundColor(.aurumText)
+                    // Start Date
+                    FormSection(title: "Start Date") {
+                        DatePicker("", selection: $startDate, displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .accentColor(.aurumGold)
+                            .padding()
+                            .background(Color.aurumCard)
+                            .cornerRadius(12)
+                    }
                     
-                    Toggle("Has End Date", isOn: $hasEndDate)
-                        .tint(.aurumPurple)
+                    // End Date Toggle
+                    FormSection(title: "End Date (Optional)") {
+                        VStack(spacing: 12) {
+                            Toggle("Set End Date", isOn: $hasEndDate)
+                                .toggleStyle(SwitchToggleStyle(tint: .aurumGold))
+                                .padding()
+                                .background(Color.aurumCard)
+                                .cornerRadius(12)
+                            
+                            if hasEndDate {
+                                DatePicker("", selection: $endDate, in: startDate..., displayedComponents: .date)
+                                    .datePickerStyle(.compact)
+                                    .accentColor(.aurumGold)
+                                    .padding()
+                                    .background(Color.aurumCard)
+                                    .cornerRadius(12)
+                                    .transition(.move(edge: .top).combined(with: .opacity))
+                            }
+                        }
+                    }
                     
-                    if hasEndDate {
-                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
-                            .foregroundColor(.aurumText)
+                    // Description
+                    FormSection(title: "Description (Optional)") {
+                        TextField("Add a note...", text: $description)
+                            .aurumTextFieldStyle(placeholder: "Add a note...")
                     }
                 }
-            }
-            .background(Color.aurumDark)
-            .scrollContentBackground(.hidden)
-            .navigationTitle("Add Recurring")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundColor(.aurumSecondaryText)
-                }
+                .padding(.horizontal, 20)
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveRecurringTransaction()
-                    }
-                    .foregroundColor(.aurumPurple)
-                    .disabled(name.isEmpty || amount.isEmpty)
-                }
+                Spacer()
             }
+            .padding(.bottom, 24)
+        }
+        .frame(width: 500, height: 700)
+        .background(Color.aurumDark.ignoresSafeArea())
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .toolbar {
+            #if os(iOS)
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
+                }
+                .foregroundColor(.aurumGray)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Save") {
+                    saveRecurringTransaction()
+                }
+                .fontWeight(.semibold)
+                .foregroundColor(.aurumGold)
+                .disabled(!isValidInput)
+            }
+            #else
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
+                .foregroundColor(.aurumGray)
+            }
+            
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    saveRecurringTransaction()
+                }
+                .fontWeight(.semibold)
+                .foregroundColor(.aurumGold)
+                .disabled(!isValidInput)
+            }
+            #endif
         }
     }
     
+    private var isValidInput: Bool {
+        !name.isEmpty && !amount.isEmpty && Double(amount) != nil
+    }
+    
     private func saveRecurringTransaction() {
-        guard let amountValue = Double(amount), amountValue > 0 else { return }
+        guard let amountValue = Double(amount) else { return }
         
         let category = isIncome ? selectedIncomeCategory.rawValue : selectedExpenseCategory.rawValue
         let nextDue = selectedFrequency.nextDate(from: startDate)

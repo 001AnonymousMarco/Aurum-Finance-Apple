@@ -269,74 +269,77 @@ struct PayoffCalculatorView: View {
         case customPayment = "Custom Payment"
     }
     
+    private var debtInfoSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Debt Information")
+                .font(.headline)
+                .foregroundColor(.aurumText)
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Current Balance")
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                    Text(formatCurrency(liability.balance))
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.aurumText)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing) {
+                    Text("Interest Rate")
+                        .font(.caption)
+                        .foregroundColor(.aurumSecondaryText)
+                    Text("\(String(format: "%.2f", liability.interestRate))%")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.aurumText)
+                }
+            }
+            
+            Text("Minimum Payment: \(formatCurrency(liability.minimumPayment))")
+                .font(.subheadline)
+                .foregroundColor(.aurumSecondaryText)
+        }
+        .padding(16)
+        .background(Color.aurumCard)
+        .cornerRadius(12)
+    }
+    
+    private var paymentStrategySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Payment Strategy")
+                .font(.headline)
+                .foregroundColor(.aurumText)
+            
+            Picker("Mode", selection: $calculationMode) {
+                ForEach(CalculationMode.allCases, id: \.self) { mode in
+                    Text(mode.rawValue).tag(mode)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            
+            if calculationMode == .extraPayment {
+                TextField("Extra payment amount", text: $extraPayment)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            } else {
+                TextField("Total monthly payment", text: $customPayment)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            }
+        }
+        .padding(16)
+        .background(Color.aurumCard)
+        .cornerRadius(12)
+    }
+
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Debt info
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Debt Information")
-                            .font(.headline)
-                            .foregroundColor(.aurumText)
-                        
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Current Balance")
-                                    .font(.caption)
-                                    .foregroundColor(.aurumSecondaryText)
-                                Text(formatCurrency(liability.balance))
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.aurumText)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing) {
-                                Text("Interest Rate")
-                                    .font(.caption)
-                                    .foregroundColor(.aurumSecondaryText)
-                                Text("\(String(format: "%.2f", liability.interestRate))%")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.aurumText)
-                            }
-                        }
-                        
-                        Text("Minimum Payment: \(formatCurrency(liability.minimumPayment))")
-                            .font(.subheadline)
-                            .foregroundColor(.aurumSecondaryText)
-                    }
-                    .padding(16)
-                    .background(Color.aurumCard)
-                    .cornerRadius(12)
-                    
-                    // Calculation mode
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Payment Strategy")
-                            .font(.headline)
-                            .foregroundColor(.aurumText)
-                        
-                        Picker("Mode", selection: $calculationMode) {
-                            ForEach(CalculationMode.allCases, id: \.self) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        
-                        if calculationMode == .extraPayment {
-                            TextField("Extra payment amount", text: $extraPayment)
-                                .keyboardType(.decimalPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                        } else {
-                            TextField("Total monthly payment", text: $customPayment)
-                                .keyboardType(.decimalPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                        }
-                    }
-                    .padding(16)
-                    .background(Color.aurumCard)
-                    .cornerRadius(12)
+                    debtInfoSection
+                    paymentStrategySection
                     
                     // Results
                     if let strategy = calculateStrategy() {
@@ -352,9 +355,8 @@ struct PayoffCalculatorView: View {
             }
             .background(Color.aurumDark)
             .navigationTitle("Payoff Calculator")
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Done") { dismiss() }
                         .foregroundColor(.aurumPurple)
                 }
@@ -396,13 +398,13 @@ struct PayoffResultsView: View {
                 ResultRow(
                     title: "Payoff Date",
                     value: formatDate(strategy.payoffDate),
-                    color: .aurumText
+                    color: "#FFFFFF"
                 )
                 
                 ResultRow(
                     title: "Time to Payoff",
                     value: "\(strategy.monthsToPayoff) months",
-                    color: .aurumText
+                    color: "#FFFFFF"
                 )
                 
                 ResultRow(
@@ -414,7 +416,7 @@ struct PayoffResultsView: View {
                 ResultRow(
                     title: "Total Amount Paid",
                     value: formatCurrency(strategy.totalAmountPaid),
-                    color: .aurumText
+                    color: "#FFFFFF"
                 )
             }
             
@@ -476,7 +478,7 @@ struct ResultRow: View {
             
             Text(value)
                 .fontWeight(.medium)
-                .foregroundColor(color == .aurumText ? Color.aurumText : Color(hex: color))
+                .foregroundColor(Color(hex: color))
         }
     }
 }

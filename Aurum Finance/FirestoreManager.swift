@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseFirestore
 
+@MainActor
 class FirestoreManager: ObservableObject {
     private let db = Firestore.firestore()
     private let auth = FirebaseManager.shared

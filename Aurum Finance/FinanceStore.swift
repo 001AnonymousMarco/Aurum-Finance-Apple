@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class FinanceStore: ObservableObject {
     @Published private var firestoreManager = FirestoreManager()
     
