@@ -246,7 +246,6 @@ extension Image {
     static let aurumDelete = Image(systemName: "trash.circle.fill")
     static let aurumSettings = Image(systemName: "gear.circle.fill")
     static let aurumInfo = Image(systemName: "info.circle.fill")
-    static let aurumInfo = Image(systemName: "info.circle.fill")
     static let aurumClose = Image(systemName: "xmark.circle.fill")
 }
 
