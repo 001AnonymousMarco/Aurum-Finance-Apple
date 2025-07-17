@@ -530,6 +530,15 @@ struct EnhancedLiabilitiesView: View {
         }
         .background(Color.aurumDark)
         .navigationTitle("Debt Management")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddDebt = true }) {
+                    Image(systemName: "plus")
+                        .font(.headline)
+                        .foregroundColor(.aurumGold)
+                }
+            }
+        }
         .sheet(isPresented: $showingAddDebt) {
             // You can reuse the existing LiabilityForm here
             // or create an enhanced version with the new features
