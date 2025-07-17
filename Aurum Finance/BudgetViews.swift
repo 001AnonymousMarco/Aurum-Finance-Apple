@@ -12,7 +12,7 @@ struct BudgetOverviewCard: View {
                     Text("Budget Overview")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                     
                     Text("\(formatCurrency(analysis.totalSpent)) of \(formatCurrency(analysis.totalBudgeted))")
                         .font(.subheadline)
@@ -44,7 +44,7 @@ struct BudgetOverviewCard: View {
                     Text("\(Int((analysis.totalSpent / analysis.totalBudgeted) * 100))%")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                 }
                 
                 ProgressView(value: analysis.totalSpent, total: analysis.totalBudgeted)
@@ -121,7 +121,7 @@ struct BudgetCard: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(budget.name)
                             .font(.headline)
-                            .foregroundColor(.aurumText)
+                            .foregroundColor(.white)
                         
                         Text(budget.category.rawValue)
                             .font(.caption)
@@ -149,7 +149,7 @@ struct BudgetCard: View {
                     Text(formatCurrency(budget.currentSpent(expenses: expenses)))
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                 }
                 
                 Spacer()
@@ -162,7 +162,7 @@ struct BudgetCard: View {
                     Text(formatCurrency(budget.monthlyLimit))
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                 }
             }
             
@@ -178,7 +178,7 @@ struct BudgetCard: View {
                     Text("\(Int(budget.progressPercentage(expenses: expenses) * 100))%")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                 }
                 
                 ProgressView(value: budget.progressPercentage(expenses: expenses))
@@ -235,7 +235,7 @@ struct BudgetListView: View {
                         
                         Text("Add New Budget")
                             .font(.headline)
-                            .foregroundColor(.aurumText)
+                            .foregroundColor(.white)
                         
                         Spacer()
                     }
