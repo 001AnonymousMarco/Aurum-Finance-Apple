@@ -12,7 +12,7 @@ struct DebtOverviewCard: View {
                     Text("Debt Overview")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.aurumText)
+                        .foregroundColor(.white)
                     
                     Text("\(financeStore.liabilities.count) active debts")
                         .font(.subheadline)
