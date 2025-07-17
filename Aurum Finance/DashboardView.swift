@@ -96,7 +96,7 @@ struct DashboardView: View {
             Spacer()
             
             Button(action: {}) {
-                Image(systemName: "bell")
+                Image(systemName: "bell.fill")
                     .font(.title2)
                     .foregroundColor(.white)
                     .padding(12)
