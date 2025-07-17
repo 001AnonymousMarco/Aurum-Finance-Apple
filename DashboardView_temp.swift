@@ -500,9 +500,15 @@ struct EnhancedNetWorthCard: View {
                         .fontWeight(.medium)
                         .foregroundColor(.white)
                     
-                    Text(summary.netWorth.currencyFormatted)
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.aurumGold)
+                    if summary.netWorth == 0 {
+                        Text("Add a transaction to get started")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.aurumGray)
+                    } else {
+                        Text(summary.netWorth.currencyFormatted)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.aurumGold)
+                    }
                 }
                 
                 Spacer()
