@@ -49,12 +49,9 @@ struct AuthView: View {
                 }) {
                     Text(isSignUp ? "Sign Up" : "Sign In")
                         .font(.headline)
-                        .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.aurumGold)
-                        .cornerRadius(12)
                 }
+                .goldButton()
                 .disabled(email.isEmpty || password.isEmpty)
                 
                 Button(action: {
