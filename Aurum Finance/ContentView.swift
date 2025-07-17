@@ -299,7 +299,7 @@ struct TransactionsView: View {
                             .font(.headline)
                             .foregroundColor(.aurumGold)
                     }
-                    }
+                }
                 }
             }
             .sheet(isPresented: $showingFilterSheet) {
