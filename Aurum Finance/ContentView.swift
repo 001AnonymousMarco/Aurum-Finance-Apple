@@ -445,29 +445,61 @@ struct RemovableFilterChip: View {
 
 struct TransactionsList: View {
     let transactions: [AnyTransaction]
+    @EnvironmentObject var financeStore: FinanceStore
+    @Binding var showingAddSheet: Bool
+    @Binding var addSheetType: AddSheetType
     
     var body: some View {
         if transactions.isEmpty {
-            VStack(spacing: 16) {
-                Image(systemName: "doc.text.magnifyingglass")
-                    .font(.system(size: 48))
-                    .foregroundColor(.aurumGray)
-                
-                Text("No transactions found")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                
-                Text("Try adjusting your search or filters")
-                    .font(.subheadline)
-                    .foregroundColor(.aurumGray)
-                    .multilineTextAlignment(.center)
+            if financeStore.allTransactions.isEmpty {
+                // Main empty state - no transactions at all
+                VStack(spacing: 16) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 48))
+                        .foregroundColor(.aurumGray)
+                    
+                    Text("No transactions yet")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
+                    Text("Add your first transaction to start tracking your finances")
+                        .font(.subheadline)
+                        .foregroundColor(.aurumGray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                    
+                    Button(action: { showingAddSheet = true; addSheetType = .expense }) {
+                        Text("Add First Transaction")
+                            .font(.headline)
+                    }
+                    .goldButton()
+                    .padding(.top, 8)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 32)
+            } else {
+                // Filter empty state - transactions exist but none match filters
+                VStack(spacing: 16) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 48))
+                        .foregroundColor(.aurumGray)
+                    
+                    Text("No transactions found")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
+                    Text("Try adjusting your search or filters")
+                        .font(.subheadline)
+                        .foregroundColor(.aurumGray)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding()
         } else {
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(groupedTransactions.keys.sorted(by: >), id: \.self) { date in
+                    ForEach(groupedTransactions.keys.sorted(by: >), id: .self) { date in
                         TransactionDateSection(
                             date: date,
                             transactions: groupedTransactions[date] ?? []
