@@ -300,7 +300,6 @@ struct TransactionsView: View {
                             .foregroundColor(.aurumGold)
                     }
                 }
-                }
             }
             .sheet(isPresented: $showingFilterSheet) {
                 TransactionFiltersSheet()
