@@ -401,7 +401,7 @@ struct MobileDebtCard: View {
     private var monthlyPayment: Double {
         // Calculate monthly payment based on liability details
         // This would need to be implemented based on your calculation logic
-        return liability.amount * 0.05 // Placeholder: 5% of total
+        return liability.balance * 0.05 // Placeholder: 5% of total
     }
     
     var body: some View {
@@ -451,7 +451,7 @@ struct MobileDebtCard: View {
                         .font(.caption)
                         .foregroundColor(.aurumGray)
                     
-                    Text(liability.amount.formatted(.currency(code: "USD")))
+                    Text(liability.balance.formatted(.currency(code: "USD")))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.aurumText)

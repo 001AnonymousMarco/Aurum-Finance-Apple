@@ -114,15 +114,15 @@ struct MobileTransactionsView: View {
         .background(Color.aurumDark)
     }
     
-    private var groupedTransactions: [Date: [Transaction]] {
-        let filteredTransactions = financeStore.allTransactions.filter { transaction in
+    private var groupedTransactions: [Date: [AnyTransaction]] {
+        let filteredTransactions = financeStore.recentTransactions.filter { transaction in
             let matchesFilter = selectedFilter == .all || 
-                (selectedFilter == .income && transaction.isIncome) ||
-                (selectedFilter == .expense && !transaction.isIncome)
+                (selectedFilter == .income && transaction.type == .income) ||
+                (selectedFilter == .expense && transaction.type == .expense)
             
             let matchesSearch = searchText.isEmpty || 
-                transaction.description.localizedCaseInsensitiveContains(searchText) ||
-                transaction.category.localizedCaseInsensitiveContains(searchText)
+                (transaction.description?.localizedCaseInsensitiveContains(searchText) ?? false) ||
+                transaction.type.rawValue.localizedCaseInsensitiveContains(searchText)
             
             return matchesFilter && matchesSearch
         }
@@ -136,7 +136,7 @@ struct MobileTransactionsView: View {
 // MARK: - Mobile Transaction Date Section
 struct MobileTransactionDateSection: View {
     let date: Date
-    let transactions: [Transaction]
+    let transactions: [AnyTransaction]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -178,20 +178,20 @@ struct MobileTransactionDateSection: View {
     
     private var dayTotal: Double {
         transactions.reduce(0) { total, transaction in
-            total + (transaction.isIncome ? transaction.amount : -transaction.amount)
+            total + (transaction.type == .income ? transaction.amount : -transaction.amount)
         }
     }
 }
 
 // MARK: - Mobile Transaction Row
 struct MobileTransactionRow: View {
-    let transaction: Transaction
+    let transaction: AnyTransaction
     
     var body: some View {
         HStack(spacing: 16) {
             // Category Icon
             Circle()
-                .fill(transaction.isIncome ? Color.aurumGreen : Color.aurumRed)
+                .fill(transaction.type == .income ? Color.aurumGreen : Color.aurumRed)
                 .frame(width: 48, height: 48)
                 .overlay(
                     Image(systemName: categoryIcon)
@@ -201,13 +201,13 @@ struct MobileTransactionRow: View {
             
             // Transaction Details
             VStack(alignment: .leading, spacing: 4) {
-                Text(transaction.description)
+                Text(transaction.description ?? "Transaction")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.aurumText)
                     .lineLimit(1)
                 
-                Text(transaction.category)
+                Text(transaction.type.rawValue)
                     .font(.caption)
                     .foregroundColor(.aurumGray)
                 
@@ -223,9 +223,9 @@ struct MobileTransactionRow: View {
                 Text(transaction.amount.formatted(.currency(code: "USD")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(transaction.isIncome ? .aurumGreen : .aurumRed)
+                    .foregroundColor(transaction.type == .income ? .aurumGreen : .aurumRed)
                 
-                Text(transaction.isIncome ? "Income" : "Expense")
+                Text(transaction.type == .income ? "Income" : "Expense")
                     .font(.caption2)
                     .foregroundColor(.aurumGray)
             }
@@ -236,16 +236,9 @@ struct MobileTransactionRow: View {
     }
     
     private var categoryIcon: String {
-        switch transaction.category.lowercased() {
-        case "salary", "income": return "dollarsign.circle"
-        case "food", "dining": return "fork.knife"
-        case "transportation", "gas": return "car.fill"
-        case "entertainment": return "gamecontroller.fill"
-        case "shopping": return "bag.fill"
-        case "bills", "utilities": return "bolt.fill"
-        case "health", "medical": return "cross.fill"
-        case "education": return "book.fill"
-        default: return transaction.isIncome ? "arrow.up" : "arrow.down"
+        switch transaction.type {
+        case .income: return "dollarsign.circle"
+        case .expense: return "arrow.down"
         }
     }
 }

@@ -132,13 +132,13 @@ struct MobileGoalCard: View {
     
     private var progressPercentage: Double {
         guard goal.targetAmount > 0 else { return 0 }
-        return min(goal.savedAmount / goal.targetAmount, 1.0)
+        return min(goal.currentAmount / goal.targetAmount, 1.0)
     }
     
     private var daysRemaining: Int {
         let calendar = Calendar.current
         let today = Date()
-        let targetDate = goal.targetDate
+        let targetDate = goal.deadline
         
         guard targetDate > today else { return 0 }
         
@@ -147,7 +147,7 @@ struct MobileGoalCard: View {
     }
     
     private var isOverdue: Bool {
-        goal.targetDate < Date() && progressPercentage < 1.0
+        goal.deadline < Date() && progressPercentage < 1.0
     }
     
     var body: some View {
@@ -165,12 +165,12 @@ struct MobileGoalCard: View {
                     )
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(goal.name)
+                    Text(goal.title)
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.aurumText)
                     
-                    Text(goal.category)
+                    Text(goal.category.rawValue)
                         .font(.subheadline)
                         .foregroundColor(.aurumGray)
                 }
@@ -217,7 +217,7 @@ struct MobileGoalCard: View {
                             .font(.caption)
                             .foregroundColor(.aurumGray)
                         
-                        Text(goal.savedAmount.formatted(.currency(code: "USD")))
+                        Text(goal.currentAmount.formatted(.currency(code: "USD")))
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.aurumGreen)
@@ -243,7 +243,7 @@ struct MobileGoalCard: View {
                             .font(.caption)
                             .foregroundColor(.aurumGray)
                         
-                        Text((goal.targetAmount - goal.savedAmount).formatted(.currency(code: "USD")))
+                        Text((goal.targetAmount - goal.currentAmount).formatted(.currency(code: "USD")))
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.aurumRed)
@@ -305,11 +305,11 @@ struct MobileGoalCard: View {
         formatter.dateStyle = .medium
         
         if progressPercentage >= 1.0 {
-            return "Completed on \(formatter.string(from: goal.targetDate))"
+            return "Completed on \(formatter.string(from: goal.deadline))"
         } else if isOverdue {
-            return "Was due \(formatter.string(from: goal.targetDate))"
+            return "Was due \(formatter.string(from: goal.deadline))"
         } else {
-            return "Due \(formatter.string(from: goal.targetDate))"
+            return "Due \(formatter.string(from: goal.deadline))"
         }
     }
 } 

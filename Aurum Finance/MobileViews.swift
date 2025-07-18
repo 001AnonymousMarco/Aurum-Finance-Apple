@@ -298,28 +298,28 @@ struct MobileRecentTransactionsView: View {
 
 // MARK: - Mobile Transaction Row
 struct MobileTransactionRow: View {
-    let transaction: Transaction
+    let transaction: AnyTransaction
     
     var body: some View {
         HStack(spacing: 12) {
             // Icon
             Circle()
-                .fill(transaction.isIncome ? Color.aurumGreen : Color.aurumRed)
+                .fill(transaction.type == .income ? Color.aurumGreen : Color.aurumRed)
                 .frame(width: 40, height: 40)
                 .overlay(
-                    Image(systemName: transaction.isIncome ? "arrow.up" : "arrow.down")
+                    Image(systemName: transaction.type == .income ? "arrow.up" : "arrow.down")
                         .foregroundColor(.white)
                         .font(.system(size: 16, weight: .semibold))
                 )
             
             // Details
             VStack(alignment: .leading, spacing: 4) {
-                Text(transaction.description)
+                Text(transaction.description ?? "Transaction")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.aurumText)
                 
-                Text(transaction.category)
+                Text(transaction.type.rawValue)
                     .font(.caption)
                     .foregroundColor(.aurumGray)
             }
@@ -330,7 +330,7 @@ struct MobileTransactionRow: View {
             Text(transaction.amount.formatted(.currency(code: "USD")))
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(transaction.isIncome ? .aurumGreen : .aurumRed)
+                .foregroundColor(transaction.type == .income ? .aurumGreen : .aurumRed)
         }
         .padding(12)
         .background(Color.aurumCard)
@@ -371,7 +371,7 @@ struct MobileGoalCard: View {
     
     private var progressPercentage: Double {
         guard goal.targetAmount > 0 else { return 0 }
-        return min(goal.savedAmount / goal.targetAmount, 1.0)
+        return min(goal.currentAmount / goal.targetAmount, 1.0)
     }
     
     var body: some View {
@@ -382,7 +382,7 @@ struct MobileGoalCard: View {
                     .font(.title2)
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(goal.name)
+                    Text(goal.title)
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.aurumText)
@@ -394,7 +394,7 @@ struct MobileGoalCard: View {
                 
                 Spacer()
                 
-                Text(goal.savedAmount.formatted(.currency(code: "USD")))
+                Text(goal.currentAmount.formatted(.currency(code: "USD")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.aurumGold)
