@@ -531,12 +531,12 @@ struct FilterChip: View {
             Text(title)
                 .font(.subheadline)
                 .fontWeight(isSelected ? .semibold : .medium)
-                .foregroundColor(isSelected ? .aurumDark : .aurumText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(backgroundView)
                 .cornerRadius(20)
         }
+        .foregroundColor(isSelected ? .aurumDark : .aurumText)
     }
     
     @ViewBuilder

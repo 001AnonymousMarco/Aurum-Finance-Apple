@@ -346,6 +346,7 @@ struct TransactionsView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
@@ -764,8 +765,7 @@ struct TransactionFiltersSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Reset") {
                         financeStore.selectedDateRange = .thisMonth
                         financeStore.selectedTransactionType = nil
@@ -773,36 +773,16 @@ struct TransactionFiltersSheet: View {
                     }
                     .foregroundColor(.aurumGold)
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         presentationMode.wrappedValue.dismiss()
                     }
                     .fontWeight(.semibold)
                     .foregroundColor(.aurumGold)
                 }
-                #else
-                ToolbarItem(placement: .primaryAction) {
-                    HStack {
-                        Button("Reset") {
-                            financeStore.selectedDateRange = .thisMonth
-                            financeStore.selectedTransactionType = nil
-                            financeStore.selectedExpenseCategory = nil
-                        }
-                        .foregroundColor(.aurumGold)
-                        
-                        Spacer()
-                        
-                        Button("Done") {
-                            presentationMode.wrappedValue.dismiss()
-                        }
-                        .fontWeight(.semibold)
-                        .foregroundColor(.aurumGold)
-                    }
-                }
-                #endif
             }
         }
+        .frame(minWidth: 400, minHeight: 500)
     }
 }
 
