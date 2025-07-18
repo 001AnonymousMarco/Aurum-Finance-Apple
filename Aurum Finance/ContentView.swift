@@ -309,6 +309,7 @@ struct TransactionsView: View {
                 )
                 .frame(maxWidth: .infinity)
             }
+            .frame(minWidth: 700)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.aurumDark)
             .navigationTitle("Transactions")
@@ -316,7 +317,7 @@ struct TransactionsView: View {
             .navigationBarTitleDisplayMode(.large)
             #endif
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(action: { showingAddSheet = true }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.headline)

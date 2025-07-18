@@ -252,19 +252,11 @@ struct RecurringTransactionsListView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    // Overview card
-                    RecurringTransactionsOverviewCard()
-                    
-                    // Recurring transactions list
-                    ForEach(filteredTransactions) { transaction in
-                        RecurringTransactionCard(transaction: transaction)
-                    }
-                }
-                .padding(16)
-            }
+            // Overview card
+            RecurringTransactionsOverviewCard()
+            // Filtered transaction list
+            FilteredRecurringList(transactions: filteredTransactions)
+                .padding(.horizontal, 16)
         }
         .background(Color.aurumDark)
         .navigationTitle("Recurring")
@@ -280,6 +272,26 @@ struct RecurringTransactionsListView: View {
         .sheet(isPresented: $showingAddRecurring) {
             AddRecurringTransactionView()
                 .environmentObject(financeStore)
+        }
+    }
+}
+
+private struct FilteredRecurringList: View {
+    let transactions: [RecurringTransaction]
+    var body: some View {
+        if transactions.isEmpty {
+            VStack {
+                Spacer()
+                Text("No transactions found for this filter.")
+                    .foregroundColor(.aurumGray)
+                Spacer()
+            }
+        } else {
+            LazyVStack(spacing: 16) {
+                ForEach(transactions) { transaction in
+                    RecurringTransactionCard(transaction: transaction)
+                }
+            }
         }
     }
 }
