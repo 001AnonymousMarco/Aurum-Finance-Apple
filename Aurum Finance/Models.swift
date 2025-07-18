@@ -420,7 +420,7 @@ struct RecurringTransaction: Identifiable, Codable {
 // MARK: - Budget Management Models
 
 struct Budget: Identifiable, Codable {
-    let id: UUID
+    var id: UUID
     var name: String
     var category: Expense.ExpenseCategory
     var monthlyLimit: Double
@@ -430,8 +430,8 @@ struct Budget: Identifiable, Codable {
     var alertThreshold: Double = 0.8 // Alert at 80%
     var description: String?
     
-    init(name: String, category: Expense.ExpenseCategory, monthlyLimit: Double, startDate: Date, endDate: Date? = nil, isActive: Bool = true, alertThreshold: Double = 0.8, description: String? = nil) {
-        self.id = UUID()
+    init(id: UUID = UUID(), name: String, category: Expense.ExpenseCategory, monthlyLimit: Double, startDate: Date, endDate: Date? = nil, isActive: Bool = true, alertThreshold: Double = 0.8, description: String? = nil) {
+        self.id = id
         self.name = name
         self.category = category
         self.monthlyLimit = monthlyLimit
@@ -517,6 +517,7 @@ struct Budget: Identifiable, Codable {
         let description = dict["description"] as? String
         
         return Budget(
+            id: id,
             name: name,
             category: category,
             monthlyLimit: monthlyLimit,

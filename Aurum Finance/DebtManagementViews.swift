@@ -495,6 +495,8 @@ struct ResultRow: View {
 struct EnhancedLiabilitiesView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @State private var showingAddDebt = false
+    @State private var showingEditDebt = false
+    @State private var selectedLiability: Liability?
     
     var body: some View {
         ScrollView {
@@ -518,6 +520,20 @@ struct EnhancedLiabilitiesView: View {
                         
                         ForEach(financeStore.highPriorityDebts) { liability in
                             EnhancedLiabilityCard(liability: liability)
+                                .contextMenu {
+                                    Button {
+                                        selectedLiability = liability
+                                        showingEditDebt = true
+                                    } label: {
+                                        Label("Edit Debt", systemImage: "pencil")
+                                    }
+                                    
+                                    Button(role: .destructive) {
+                                        financeStore.deleteLiability(liability)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
                         }
                     }
                 }
@@ -530,10 +546,22 @@ struct EnhancedLiabilitiesView: View {
                     
                     ForEach(financeStore.liabilities.sorted { $0.interestRate > $1.interestRate }) { liability in
                         EnhancedLiabilityCard(liability: liability)
+                            .contextMenu {
+                                Button {
+                                    selectedLiability = liability
+                                    showingEditDebt = true
+                                } label: {
+                                    Label("Edit Debt", systemImage: "pencil")
+                                }
+                                
+                                Button(role: .destructive) {
+                                    financeStore.deleteLiability(liability)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                     }
                 }
-                
-
             }
             .padding(16)
         }
@@ -549,8 +577,16 @@ struct EnhancedLiabilitiesView: View {
             }
         }
         .sheet(isPresented: $showingAddDebt) {
-            AddLiabilityView()
-                .environmentObject(financeStore)
+            NavigationView {
+                AddLiabilityView()
+                    .environmentObject(financeStore)
+            }
+        }
+        .sheet(isPresented: $showingEditDebt) {
+            NavigationView {
+                AddLiabilityView(liability: selectedLiability)
+                    .environmentObject(financeStore)
+            }
         }
     }
 }

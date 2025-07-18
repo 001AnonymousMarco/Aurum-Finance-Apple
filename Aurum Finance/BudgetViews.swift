@@ -232,6 +232,8 @@ struct BudgetListView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @State private var showingAddBudget = false
     @State private var selectedCategory: Expense.ExpenseCategory? = nil
+    @State private var showingEditBudget = false
+    @State private var selectedBudget: Budget?
     
     private var filteredBudgets: [Budget] {
         guard let category = selectedCategory else { return financeStore.budgets.filter { $0.isActive } }
@@ -294,6 +296,20 @@ struct BudgetListView: View {
                 } else {
                     ForEach(filteredBudgets) { budget in
                         BudgetCard(budget: budget, expenses: financeStore.expenses)
+                            .contextMenu {
+                                Button {
+                                    selectedBudget = budget
+                                    showingEditBudget = true
+                                } label: {
+                                    Label("Edit Budget", systemImage: "pencil")
+                                }
+                                
+                                Button(role: .destructive) {
+                                    financeStore.deleteBudget(budget)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                     }
                 }
             }
@@ -314,6 +330,10 @@ struct BudgetListView: View {
             AddBudgetView()
                 .environmentObject(financeStore)
         }
+        .sheet(isPresented: $showingEditBudget) {
+            AddBudgetView(budget: selectedBudget)
+                .environmentObject(financeStore)
+        }
     }
 }
 
@@ -321,11 +341,22 @@ struct AddBudgetView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @Environment(\.dismiss) private var dismiss
     
+    private let budgetToEdit: Budget?
+    
     @State private var name = ""
     @State private var selectedCategory: Expense.ExpenseCategory = .food
     @State private var monthlyLimit = ""
     @State private var alertThreshold = 80.0
     @State private var description = ""
+    
+    init(budget: Budget? = nil) {
+        self.budgetToEdit = budget
+        _name = State(initialValue: budget?.name ?? "")
+        _selectedCategory = State(initialValue: budget?.category ?? .food)
+        _monthlyLimit = State(initialValue: budget?.monthlyLimit.formatted() ?? "")
+        _alertThreshold = State(initialValue: budget?.alertThreshold ?? 80.0)
+        _description = State(initialValue: budget?.description ?? "")
+    }
     
     var body: some View {
         ScrollView {
@@ -336,7 +367,7 @@ struct AddBudgetView: View {
                         .font(.title)
                         .foregroundColor(.aurumPurple)
                     
-                    Text("Add Budget")
+                    Text(budgetToEdit != nil ? "Edit Budget" : "Add Budget")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
@@ -457,18 +488,35 @@ struct AddBudgetView: View {
     }
     
     private func saveBudget() {
-        guard let limit = Double(monthlyLimit), limit > 0 else { return }
+        guard let limitValue = Double(monthlyLimit) else { return }
         
-        let budget = Budget(
-            name: name,
-            category: selectedCategory,
-            monthlyLimit: limit,
-            startDate: Date(),
-            alertThreshold: alertThreshold / 100,
-            description: description.isEmpty ? nil : description
-        )
+        if let existingBudget = budgetToEdit {
+            // Update existing budget
+            let updatedBudget = Budget(
+                id: existingBudget.id,
+                name: name,
+                category: selectedCategory,
+                monthlyLimit: limitValue,
+                startDate: existingBudget.startDate,
+                endDate: existingBudget.endDate,
+                isActive: existingBudget.isActive,
+                alertThreshold: alertThreshold / 100,
+                description: description.isEmpty ? nil : description
+            )
+            financeStore.updateBudget(updatedBudget)
+        } else {
+            // Create new budget
+            let budget = Budget(
+                name: name,
+                category: selectedCategory,
+                monthlyLimit: limitValue,
+                startDate: Date(),
+                alertThreshold: alertThreshold / 100,
+                description: description.isEmpty ? nil : description
+            )
+            financeStore.addBudget(budget)
+        }
         
-        financeStore.addBudget(budget)
         dismiss()
     }
 }

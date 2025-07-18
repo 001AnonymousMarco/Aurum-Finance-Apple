@@ -309,12 +309,24 @@ struct AddSavingsGoalView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @Environment(\.presentationMode) var presentationMode
     
+    private let goalToEdit: SavingsGoal?
+    
     @State private var title: String = ""
     @State private var targetAmount: String = ""
     @State private var currentAmount: String = ""
     @State private var deadline: Date = Calendar.current.date(byAdding: .month, value: 6, to: Date()) ?? Date()
     @State private var category: SavingsGoal.GoalCategory = .emergency
     @State private var description: String = ""
+    
+    init(goal: SavingsGoal? = nil) {
+        self.goalToEdit = goal
+        _title = State(initialValue: goal?.title ?? "")
+        _targetAmount = State(initialValue: goal?.targetAmount.formatted() ?? "")
+        _currentAmount = State(initialValue: goal?.currentAmount.formatted() ?? "")
+        _deadline = State(initialValue: goal?.deadline ?? Calendar.current.date(byAdding: .month, value: 6, to: Date()) ?? Date())
+        _category = State(initialValue: goal?.category ?? .emergency)
+        _description = State(initialValue: goal?.description ?? "")
+    }
     
     var body: some View {
         ScrollView {
@@ -325,7 +337,7 @@ struct AddSavingsGoalView: View {
                         .font(.title)
                         .foregroundColor(.aurumBlue)
                     
-                    Text("Add Savings Goal")
+                    Text(goalToEdit != nil ? "Edit Savings Goal" : "Add Savings Goal")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
@@ -398,6 +410,7 @@ struct AddSavingsGoalView: View {
                 Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
                 }
+                .font(.body.weight(.medium))
                 .foregroundColor(.aurumGray)
             }
             
@@ -405,19 +418,19 @@ struct AddSavingsGoalView: View {
                 Button("Save") {
                     saveSavingsGoal()
                 }
-                .fontWeight(.semibold)
+                .font(.body.weight(.semibold))
                 .foregroundColor(.aurumGold)
                 .disabled(!isValidInput)
             }
             #else
-            ToolbarItem(placement: .automatic) {
+            ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
                 }
                 .foregroundColor(.aurumGray)
             }
             
-            ToolbarItem(placement: .automatic) {
+            ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
                     saveSavingsGoal()
                 }
@@ -430,23 +443,38 @@ struct AddSavingsGoalView: View {
     }
     
     private var isValidInput: Bool {
-        !title.isEmpty && !targetAmount.isEmpty && Double(targetAmount) != nil
+        !title.isEmpty && !targetAmount.isEmpty && Double(targetAmount) != nil && Double(currentAmount) != nil
     }
     
     private func saveSavingsGoal() {
-        guard let targetAmountValue = Double(targetAmount) else { return }
-        let currentAmountValue = Double(currentAmount) ?? 0.0
+        guard let target = Double(targetAmount),
+              let current = Double(currentAmount) else { return }
         
-        let savingsGoal = SavingsGoal(
-            title: title,
-            targetAmount: targetAmountValue,
-            currentAmount: currentAmountValue,
-            deadline: deadline,
-            category: category,
-            description: description.isEmpty ? nil : description
-        )
+        if let existingGoal = goalToEdit {
+            // Update existing goal
+            let updatedGoal = SavingsGoal(
+                id: existingGoal.id,
+                title: title,
+                targetAmount: target,
+                currentAmount: current,
+                deadline: deadline,
+                category: category,
+                description: description.isEmpty ? nil : description
+            )
+            financeStore.updateSavingsGoal(updatedGoal)
+        } else {
+            // Create new goal
+            let goal = SavingsGoal(
+                title: title,
+                targetAmount: target,
+                currentAmount: current,
+                deadline: deadline,
+                category: category,
+                description: description.isEmpty ? nil : description
+            )
+            financeStore.addSavingsGoal(goal)
+        }
         
-        financeStore.addSavingsGoal(savingsGoal)
         presentationMode.wrappedValue.dismiss()
     }
 }
@@ -457,6 +485,8 @@ struct AddLiabilityView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @Environment(\.presentationMode) var presentationMode
     
+    private let liabilityToEdit: Liability?
+    
     @State private var name: String = ""
     @State private var type: Liability.LiabilityType = .creditCard
     @State private var balance: String = ""
@@ -464,6 +494,17 @@ struct AddLiabilityView: View {
     @State private var minimumPayment: String = ""
     @State private var dueDate: Date = Date()
     @State private var description: String = ""
+    
+    init(liability: Liability? = nil) {
+        self.liabilityToEdit = liability
+        _name = State(initialValue: liability?.name ?? "")
+        _type = State(initialValue: liability?.type ?? .creditCard)
+        _balance = State(initialValue: liability?.balance.formatted() ?? "")
+        _interestRate = State(initialValue: liability?.interestRate.formatted() ?? "")
+        _minimumPayment = State(initialValue: liability?.minimumPayment.formatted() ?? "")
+        _dueDate = State(initialValue: liability?.dueDate ?? Date())
+        _description = State(initialValue: liability?.description ?? "")
+    }
     
     var body: some View {
         ScrollView {
@@ -474,7 +515,7 @@ struct AddLiabilityView: View {
                         .font(.title)
                         .foregroundColor(.aurumOrange)
                     
-                    Text("Add Liability")
+                    Text(liabilityToEdit != nil ? "Edit Liability" : "Add Liability")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
@@ -564,14 +605,14 @@ struct AddLiabilityView: View {
                 .disabled(!isValidInput)
             }
             #else
-            ToolbarItem(placement: .automatic) {
+            ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
                 }
                 .foregroundColor(.aurumGray)
             }
             
-            ToolbarItem(placement: .automatic) {
+            ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
                     saveLiability()
                 }
@@ -593,17 +634,33 @@ struct AddLiabilityView: View {
               let interestRateValue = Double(interestRate),
               let minimumPaymentValue = Double(minimumPayment) else { return }
         
-        let liability = Liability(
-            name: name,
-            type: type,
-            balance: balanceValue,
-            interestRate: interestRateValue,
-            minimumPayment: minimumPaymentValue,
-            dueDate: dueDate,
-            description: description.isEmpty ? nil : description
-        )
+        if let existingLiability = liabilityToEdit {
+            // Update existing liability
+            let updatedLiability = Liability(
+                id: existingLiability.id,
+                name: name,
+                type: type,
+                balance: balanceValue,
+                interestRate: interestRateValue,
+                minimumPayment: minimumPaymentValue,
+                dueDate: dueDate,
+                description: description.isEmpty ? nil : description
+            )
+            financeStore.updateLiability(updatedLiability)
+        } else {
+            // Create new liability
+            let liability = Liability(
+                name: name,
+                type: type,
+                balance: balanceValue,
+                interestRate: interestRateValue,
+                minimumPayment: minimumPaymentValue,
+                dueDate: dueDate,
+                description: description.isEmpty ? nil : description
+            )
+            financeStore.addLiability(liability)
+        }
         
-        financeStore.addLiability(liability)
         presentationMode.wrappedValue.dismiss()
     }
 }

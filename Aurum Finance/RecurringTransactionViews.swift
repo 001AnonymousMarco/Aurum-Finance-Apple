@@ -239,7 +239,7 @@ struct RecurringTransactionsListView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(RecurringFilter.allCases, id: \.self) { filter in
-                        FilterChip(
+                        FilterPill(
                             title: filter.rawValue,
                             isSelected: selectedFilter == filter
                         ) {
@@ -532,38 +532,6 @@ struct AddRecurringTransactionView: View {
         
         financeStore.addRecurringTransaction(transaction)
         dismiss()
-    }
-}
-
-struct FilterChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(isSelected ? .semibold : .medium)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(backgroundView)
-                .cornerRadius(20)
-        }
-        .foregroundColor(isSelected ? .aurumDark : .aurumText)
-    }
-    
-    @ViewBuilder
-    private var backgroundView: some View {
-        if isSelected {
-            Color.aurumPurple
-        } else {
-            Color.clear
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.aurumGray.opacity(0.3), lineWidth: 1)
-                )
-        }
     }
 }
 

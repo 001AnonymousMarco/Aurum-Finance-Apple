@@ -894,6 +894,8 @@ struct SavingsGoalsView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @State private var selectedCategory: SavingsGoal.GoalCategory?
     @State private var showingAddGoal = false
+    @State private var showingEditGoal = false
+    @State private var selectedGoal: SavingsGoal?
     
     private var filteredGoals: [SavingsGoal] {
         if let category = selectedCategory {
@@ -988,6 +990,20 @@ struct SavingsGoalsView: View {
                             LazyVStack(spacing: 16) {
                                 ForEach(filteredGoals) { goal in
                                     SavingsGoalCard(goal: goal)
+                                        .contextMenu {
+                                            Button {
+                                                selectedGoal = goal
+                                                showingEditGoal = true
+                                            } label: {
+                                                Label("Edit Goal", systemImage: "pencil")
+                                            }
+                                            
+                                            Button(role: .destructive) {
+                                                financeStore.deleteSavingsGoal(goal)
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
                                 }
                             }
                             .padding(.horizontal, geometry.size.width * 0.05)
@@ -1007,6 +1023,12 @@ struct SavingsGoalsView: View {
         .sheet(isPresented: $showingAddGoal) {
             NavigationView {
                 AddSavingsGoalView()
+                    .environmentObject(financeStore)
+            }
+        }
+        .sheet(isPresented: $showingEditGoal) {
+            NavigationView {
+                AddSavingsGoalView(goal: selectedGoal)
                     .environmentObject(financeStore)
             }
         }
