@@ -8,6 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        #if os(iOS)
+        MobileContentView()
+        #else
+        DesktopContentView()
+        #endif
+    }
+}
+
+// MARK: - Desktop Content View (existing functionality)
+struct DesktopContentView: View {
     @StateObject private var financeStore = FinanceStore()
     @StateObject private var firebaseManager = FirebaseManager.shared
     @State private var selectedTab = 0
@@ -16,11 +27,7 @@ struct ContentView: View {
     @State private var showingProfileMenu = false
 
     private var toolbarPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .navigationBarTrailing
-        #else
         return .primaryAction
-        #endif
     }
     
     var body: some View {
@@ -121,9 +128,7 @@ struct ContentView: View {
                 }
                 .environmentObject(financeStore)
             }
-            #if os(macOS)
             .frame(minWidth: 500, minHeight: 700)
-            #endif
         }
     }
     

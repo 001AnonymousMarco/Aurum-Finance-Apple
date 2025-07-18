@@ -38,13 +38,13 @@ struct Aurum_FinanceApp: App {
             Group {
                 if firebaseManager.isAuthenticated {
                     ContentView()
-                        .frame(minWidth: 1000, minHeight: 700)
                 } else {
                     AuthView()
                 }
             }
             #if os(macOS)
             .background(Color.aurumDark)
+            .frame(minWidth: 1000, minHeight: 700)
             #endif
         }
         #if os(macOS)
