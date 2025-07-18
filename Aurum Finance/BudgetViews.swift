@@ -234,6 +234,8 @@ struct BudgetListView: View {
     @State private var selectedCategory: Expense.ExpenseCategory? = nil
     @State private var showingEditBudget = false
     @State private var selectedBudget: Budget?
+    @State private var showingDeleteAlert = false
+    @State private var budgetToDelete: Budget?
     
     private var filteredBudgets: [Budget] {
         guard let category = selectedCategory else { return financeStore.budgets.filter { $0.isActive } }
@@ -305,7 +307,8 @@ struct BudgetListView: View {
                                 }
                                 
                                 Button(role: .destructive) {
-                                    financeStore.deleteBudget(budget)
+                                    budgetToDelete = budget
+                                    showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -334,6 +337,18 @@ struct BudgetListView: View {
             AddBudgetView(budget: selectedBudget)
                 .environmentObject(financeStore)
         }
+        .alert("Delete Budget", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                if let budget = budgetToDelete {
+                    financeStore.deleteBudget(budget)
+                }
+            }
+        } message: {
+            if let budget = budgetToDelete {
+                Text("Are you sure you want to delete \"\(budget.name)\"? This action cannot be undone.")
+            }
+        }
     }
 }
 
@@ -353,8 +368,8 @@ struct AddBudgetView: View {
         self.budgetToEdit = budget
         _name = State(initialValue: budget?.name ?? "")
         _selectedCategory = State(initialValue: budget?.category ?? .food)
-        _monthlyLimit = State(initialValue: budget?.monthlyLimit.formatted() ?? "")
-        _alertThreshold = State(initialValue: budget?.alertThreshold ?? 80.0)
+        _monthlyLimit = State(initialValue: budget?.monthlyLimit != nil ? String(format: "%.0f", budget!.monthlyLimit) : "")
+        _alertThreshold = State(initialValue: budget?.alertThreshold != nil ? (budget!.alertThreshold * 100) : 80.0)
         _description = State(initialValue: budget?.description ?? "")
     }
     
@@ -484,7 +499,10 @@ struct AddBudgetView: View {
     }
     
     private var isValidInput: Bool {
-        !name.isEmpty && !monthlyLimit.isEmpty && Double(monthlyLimit) != nil
+        !name.isEmpty && 
+        !monthlyLimit.isEmpty && 
+        Double(monthlyLimit) != nil &&
+        (Double(monthlyLimit) ?? 0) > 0
     }
     
     private func saveBudget() {

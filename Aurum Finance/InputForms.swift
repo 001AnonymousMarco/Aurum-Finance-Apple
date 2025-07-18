@@ -321,8 +321,8 @@ struct AddSavingsGoalView: View {
     init(goal: SavingsGoal? = nil) {
         self.goalToEdit = goal
         _title = State(initialValue: goal?.title ?? "")
-        _targetAmount = State(initialValue: goal?.targetAmount.formatted() ?? "")
-        _currentAmount = State(initialValue: goal?.currentAmount.formatted() ?? "")
+        _targetAmount = State(initialValue: goal?.targetAmount != nil ? String(format: "%.0f", goal!.targetAmount) : "")
+        _currentAmount = State(initialValue: goal?.currentAmount != nil ? String(format: "%.0f", goal!.currentAmount) : "")
         _deadline = State(initialValue: goal?.deadline ?? Calendar.current.date(byAdding: .month, value: 6, to: Date()) ?? Date())
         _category = State(initialValue: goal?.category ?? .emergency)
         _description = State(initialValue: goal?.description ?? "")
@@ -443,7 +443,12 @@ struct AddSavingsGoalView: View {
     }
     
     private var isValidInput: Bool {
-        !title.isEmpty && !targetAmount.isEmpty && Double(targetAmount) != nil && Double(currentAmount) != nil
+        !title.isEmpty && 
+        !targetAmount.isEmpty && 
+        !currentAmount.isEmpty && 
+        Double(targetAmount) != nil && 
+        Double(currentAmount) != nil &&
+        (Double(targetAmount) ?? 0) > 0
     }
     
     private func saveSavingsGoal() {
@@ -499,9 +504,9 @@ struct AddLiabilityView: View {
         self.liabilityToEdit = liability
         _name = State(initialValue: liability?.name ?? "")
         _type = State(initialValue: liability?.type ?? .creditCard)
-        _balance = State(initialValue: liability?.balance.formatted() ?? "")
-        _interestRate = State(initialValue: liability?.interestRate.formatted() ?? "")
-        _minimumPayment = State(initialValue: liability?.minimumPayment.formatted() ?? "")
+        _balance = State(initialValue: liability?.balance != nil ? String(format: "%.2f", liability!.balance) : "")
+        _interestRate = State(initialValue: liability?.interestRate != nil ? String(format: "%.2f", liability!.interestRate) : "")
+        _minimumPayment = State(initialValue: liability?.minimumPayment != nil ? String(format: "%.2f", liability!.minimumPayment) : "")
         _dueDate = State(initialValue: liability?.dueDate ?? Date())
         _description = State(initialValue: liability?.description ?? "")
     }
@@ -593,6 +598,7 @@ struct AddLiabilityView: View {
                 Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
                 }
+                .font(.body.weight(.medium))
                 .foregroundColor(.aurumGray)
             }
             
@@ -600,7 +606,7 @@ struct AddLiabilityView: View {
                 Button("Save") {
                     saveLiability()
                 }
-                .fontWeight(.semibold)
+                .font(.body.weight(.semibold))
                 .foregroundColor(.aurumGold)
                 .disabled(!isValidInput)
             }
@@ -625,8 +631,16 @@ struct AddLiabilityView: View {
     }
     
     private var isValidInput: Bool {
-        !name.isEmpty && !balance.isEmpty && !interestRate.isEmpty && !minimumPayment.isEmpty &&
-        Double(balance) != nil && Double(interestRate) != nil && Double(minimumPayment) != nil
+        !name.isEmpty && 
+        !balance.isEmpty && 
+        !interestRate.isEmpty && 
+        !minimumPayment.isEmpty &&
+        Double(balance) != nil && 
+        Double(interestRate) != nil && 
+        Double(minimumPayment) != nil &&
+        (Double(balance) ?? 0) > 0 &&
+        (Double(interestRate) ?? 0) >= 0 &&
+        (Double(minimumPayment) ?? 0) > 0
     }
     
     private func saveLiability() {

@@ -235,7 +235,12 @@ struct RecurringTransactionsListView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Filter tabs
+            // Overview card at the top - always visible
+            RecurringTransactionsOverviewCard()
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            
+            // Filter tabs - always visible
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(RecurringFilter.allCases, id: \.self) { filter in
@@ -252,9 +257,9 @@ struct RecurringTransactionsListView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            // Overview card
-            RecurringTransactionsOverviewCard()
-            // Filtered transaction list
+            .background(Color.aurumDark)
+            
+            // Filtered transaction list - this changes based on filter
             FilteredRecurringList(transactions: filteredTransactions)
                 .padding(.horizontal, 16)
         }
@@ -270,8 +275,10 @@ struct RecurringTransactionsListView: View {
             }
         }
         .sheet(isPresented: $showingAddRecurring) {
-            AddRecurringTransactionView()
-                .environmentObject(financeStore)
+            NavigationView {
+                AddRecurringTransactionView()
+                    .environmentObject(financeStore)
+            }
         }
     }
 }

@@ -896,6 +896,8 @@ struct SavingsGoalsView: View {
     @State private var showingAddGoal = false
     @State private var showingEditGoal = false
     @State private var selectedGoal: SavingsGoal?
+    @State private var showingDeleteAlert = false
+    @State private var goalToDelete: SavingsGoal?
     
     private var filteredGoals: [SavingsGoal] {
         if let category = selectedCategory {
@@ -999,7 +1001,8 @@ struct SavingsGoalsView: View {
                                             }
                                             
                                             Button(role: .destructive) {
-                                                financeStore.deleteSavingsGoal(goal)
+                                                goalToDelete = goal
+                                                showingDeleteAlert = true
                                             } label: {
                                                 Label("Delete", systemImage: "trash")
                                             }
@@ -1030,6 +1033,18 @@ struct SavingsGoalsView: View {
             NavigationView {
                 AddSavingsGoalView(goal: selectedGoal)
                     .environmentObject(financeStore)
+            }
+        }
+        .alert("Delete Goal", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                if let goal = goalToDelete {
+                    financeStore.deleteSavingsGoal(goal)
+                }
+            }
+        } message: {
+            if let goal = goalToDelete {
+                Text("Are you sure you want to delete \"\(goal.title)\"? This action cannot be undone.")
             }
         }
         .toolbar {

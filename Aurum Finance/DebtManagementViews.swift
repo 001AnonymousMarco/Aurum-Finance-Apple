@@ -497,6 +497,8 @@ struct EnhancedLiabilitiesView: View {
     @State private var showingAddDebt = false
     @State private var showingEditDebt = false
     @State private var selectedLiability: Liability?
+    @State private var showingDeleteAlert = false
+    @State private var liabilityToDelete: Liability?
     
     var body: some View {
         ScrollView {
@@ -529,7 +531,8 @@ struct EnhancedLiabilitiesView: View {
                                     }
                                     
                                     Button(role: .destructive) {
-                                        financeStore.deleteLiability(liability)
+                                        liabilityToDelete = liability
+                                        showingDeleteAlert = true
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -555,7 +558,8 @@ struct EnhancedLiabilitiesView: View {
                                 }
                                 
                                 Button(role: .destructive) {
-                                    financeStore.deleteLiability(liability)
+                                    liabilityToDelete = liability
+                                    showingDeleteAlert = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -586,6 +590,18 @@ struct EnhancedLiabilitiesView: View {
             NavigationView {
                 AddLiabilityView(liability: selectedLiability)
                     .environmentObject(financeStore)
+            }
+        }
+        .alert("Delete Debt", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                if let liability = liabilityToDelete {
+                    financeStore.deleteLiability(liability)
+                }
+            }
+        } message: {
+            if let liability = liabilityToDelete {
+                Text("Are you sure you want to delete \"\(liability.name)\"? This action cannot be undone.")
             }
         }
     }
