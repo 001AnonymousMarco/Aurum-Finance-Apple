@@ -662,7 +662,7 @@ struct EnhancedTransactionRow: View {
                     .foregroundColor(transaction.type == .income ? .aurumGreen : .aurumRed)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var timeFormatter: DateFormatter {

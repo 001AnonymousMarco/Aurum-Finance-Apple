@@ -243,7 +243,9 @@ struct RecurringTransactionsListView: View {
                             title: filter.rawValue,
                             isSelected: selectedFilter == filter
                         ) {
-                            selectedFilter = filter
+                            withAnimation(.easeInOut) {
+                                selectedFilter = filter
+                            }
                         }
                     }
                 }

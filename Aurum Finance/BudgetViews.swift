@@ -231,6 +231,12 @@ struct BudgetCard: View {
 struct BudgetListView: View {
     @EnvironmentObject var financeStore: FinanceStore
     @State private var showingAddBudget = false
+    @State private var selectedCategory: Expense.ExpenseCategory? = nil
+    
+    private var filteredBudgets: [Budget] {
+        guard let category = selectedCategory else { return financeStore.budgets.filter { $0.isActive } }
+        return financeStore.budgets.filter { $0.isActive && $0.category == category }
+    }
     
     var body: some View {
         ScrollView {
@@ -238,8 +244,29 @@ struct BudgetListView: View {
                 // Budget overview
                 BudgetOverviewCard(analysis: financeStore.budgetAnalysis)
                 
+                // Category Filter Pills
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        FilterPill(
+                            title: "All",
+                            isSelected: selectedCategory == nil
+                        ) {
+                            selectedCategory = nil
+                        }
+                        ForEach(Expense.ExpenseCategory.allCases, id: \.self) { category in
+                            FilterPill(
+                                title: category.rawValue,
+                                isSelected: selectedCategory == category
+                            ) {
+                                selectedCategory = category
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+                
                 // Individual budgets or empty state
-                if financeStore.budgets.filter({ $0.isActive }).isEmpty {
+                if filteredBudgets.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "chart.pie")
                             .font(.system(size: 48))
@@ -265,7 +292,7 @@ struct BudgetListView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 32)
                 } else {
-                    ForEach(financeStore.budgets.filter { $0.isActive }) { budget in
+                    ForEach(filteredBudgets) { budget in
                         BudgetCard(budget: budget, expenses: financeStore.expenses)
                     }
                 }
