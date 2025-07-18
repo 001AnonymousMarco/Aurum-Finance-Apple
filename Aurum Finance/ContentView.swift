@@ -279,76 +279,69 @@ struct TransactionsView: View {
     @State private var addSheetType: AddSheetType = .expense
     
     var body: some View {
-        GeometryReader { geometry in
-            NavigationView {
-            VStack(spacing: 0) {
-                // Search and Filter Header
-                TransactionFilterHeader(
-                    searchText: $financeStore.searchText,
-                    showingFilterSheet: $showingFilterSheet
-                )
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color.aurumCard)
-                
-                // Active Filters Display
-                if hasActiveFilters {
-                    ActiveFiltersView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.aurumDark)
-                }
-                
-                // Transactions List
-                TransactionsList(
-                    transactions: financeStore.filteredTransactions,
-                    showingAddSheet: $showingAddSheet,
-                    addSheetType: $addSheetType
-                )
-                .frame(maxWidth: .infinity)
+        VStack(spacing: 0) {
+            // Search and Filter Header
+            TransactionFilterHeader(
+                searchText: $financeStore.searchText,
+                showingFilterSheet: $showingFilterSheet
+            )
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.aurumCard)
+            
+            // Active Filters Display
+            if hasActiveFilters {
+                ActiveFiltersView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.aurumDark)
             }
-            .frame(minWidth: 700)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.aurumDark)
-            .navigationTitle("Transactions")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.large)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(action: { showingAddSheet = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(.aurumGold)
-                    }
-                }
-            }
-            .sheet(isPresented: $showingFilterSheet) {
-                TransactionFiltersSheet()
-                    .environmentObject(financeStore)
-            }
-            .sheet(isPresented: $showingAddSheet) {
-                NavigationView {
-                    Group {
-                        switch addSheetType {
-                        case .income:
-                            AddIncomeView()
-                        case .expense:
-                            AddExpenseView()
-                        case .savingsGoal:
-                            AddSavingsGoalView()
-                        case .liability:
-                            AddLiabilityView()
-                        }
-                    }
-                    .environmentObject(financeStore)
+            
+            // Transactions List
+            TransactionsList(
+                transactions: financeStore.filteredTransactions,
+                showingAddSheet: $showingAddSheet,
+                addSheetType: $addSheetType
+            )
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.aurumDark)
+        .navigationTitle("Transactions")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        #endif
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button(action: { showingAddSheet = true }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.headline)
+                        .foregroundColor(.aurumGold)
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .frame(width: geometry.size.width, height: geometry.size.height)
+        .sheet(isPresented: $showingFilterSheet) {
+            TransactionFiltersSheet()
+                .environmentObject(financeStore)
+        }
+        .sheet(isPresented: $showingAddSheet) {
+            NavigationView {
+                Group {
+                    switch addSheetType {
+                    case .income:
+                        AddIncomeView()
+                    case .expense:
+                        AddExpenseView()
+                    case .savingsGoal:
+                        AddSavingsGoalView()
+                    case .liability:
+                        AddLiabilityView()
+                    }
+                }
+                .environmentObject(financeStore)
+            }
         }
     }
     
