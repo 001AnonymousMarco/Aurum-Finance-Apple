@@ -5,6 +5,23 @@ import SwiftUI
 struct BudgetOverviewCard: View {
     let analysis: BudgetAnalysis
     
+    // Safe computed properties to prevent division by zero
+    private var progressPercentage: Int {
+        guard analysis.totalBudgeted > 0 else { return 0 }
+        let percentage = (analysis.totalSpent / analysis.totalBudgeted) * 100
+        guard percentage.isFinite else { return 0 }
+        return max(0, min(100, Int(percentage.rounded())))
+    }
+    
+    private var safeProgressValue: Double {
+        guard analysis.totalBudgeted > 0 else { return 0 }
+        return min(analysis.totalSpent, analysis.totalBudgeted)
+    }
+    
+    private var safeTotalValue: Double {
+        return max(1, analysis.totalBudgeted) // Ensure never zero
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -41,13 +58,13 @@ struct BudgetOverviewCard: View {
                     
                     Spacer()
                     
-                    Text("\(Int((analysis.totalSpent / analysis.totalBudgeted) * 100))%")
+                    Text("\(progressPercentage)%")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.white)
                 }
                 
-                ProgressView(value: analysis.totalSpent, total: analysis.totalBudgeted)
+                ProgressView(value: safeProgressValue, total: safeTotalValue)
                     .progressViewStyle(LinearProgressViewStyle(tint: Color(hex: analysis.overallStatus.color)))
                     .scaleEffect(x: 1, y: 2, anchor: .center)
             }

@@ -1,9 +1,13 @@
 import Foundation
 import SwiftUI
+import Combine
 
 @MainActor
 class FinanceStore: ObservableObject {
     @Published private var firestoreManager = FirestoreManager()
+    
+    // Combine cancellables for managing subscriptions
+    private var cancellables: Set<AnyCancellable> = []
     
     // Search and filter states
     @Published var searchText = ""
@@ -20,6 +24,17 @@ class FinanceStore: ObservableObject {
     var expenses: [Expense] { firestoreManager.expenses }
     var savingsGoals: [SavingsGoal] { firestoreManager.savingsGoals }
     var liabilities: [Liability] { firestoreManager.liabilities }
+    
+    // MARK: - Initialization
+    
+    init() {
+        // Set up the reactivity chain to propagate changes from FirestoreManager to UI
+        firestoreManager.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
     
     // MARK: - Enhanced Analytics Properties
     

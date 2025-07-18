@@ -455,7 +455,7 @@ struct TransactionsList: View {
     
     var body: some View {
         if transactions.isEmpty {
-            if financeStore.allTransactions.isEmpty {
+            if financeStore.recentTransactions.isEmpty {
                 // Main empty state - no transactions at all
                 VStack(spacing: 16) {
                     Image(systemName: "doc.text.magnifyingglass")
@@ -503,7 +503,7 @@ struct TransactionsList: View {
         } else {
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(groupedTransactions.keys.sorted(by: >), id: .self) { date in
+                    ForEach(Array(groupedTransactions.keys.sorted(by: >)), id: \.self) { date in
                         TransactionDateSection(
                             date: date,
                             transactions: groupedTransactions[date] ?? []

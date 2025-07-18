@@ -44,18 +44,33 @@ struct CashFlowAnalysis {
 }
 
 struct ExpenseBreakdownItem: Identifiable {
-    let id = UUID()
+    let id: UUID
     let category: ExpenseCategory
     let amount: Double
     let percentage: Double
+    
+    init(category: ExpenseCategory, amount: Double, percentage: Double) {
+        self.id = UUID()
+        self.category = category
+        self.amount = amount
+        self.percentage = percentage
+    }
 }
 
 struct MonthlyTrend: Identifiable {
-    let id = UUID()
+    let id: UUID
     let month: Date
     let income: Double
     let expenses: Double
     let netFlow: Double
+    
+    init(month: Date, income: Double, expenses: Double, netFlow: Double) {
+        self.id = UUID()
+        self.month = month
+        self.income = income
+        self.expenses = expenses
+        self.netFlow = netFlow
+    }
     
     var monthName: String {
         let formatter = DateFormatter()
@@ -226,7 +241,7 @@ enum RecurrenceFrequency: String, CaseIterable, Codable {
 }
 
 struct RecurringTransaction: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     var name: String
     var amount: Double
     var frequency: RecurrenceFrequency
@@ -238,6 +253,21 @@ struct RecurringTransaction: Identifiable, Codable {
     var lastProcessed: Date?
     var nextDue: Date
     var description: String?
+    
+    init(name: String, amount: Double, frequency: RecurrenceFrequency, category: String, isIncome: Bool, startDate: Date, endDate: Date? = nil, isActive: Bool = true, lastProcessed: Date? = nil, nextDue: Date, description: String? = nil) {
+        self.id = UUID()
+        self.name = name
+        self.amount = amount
+        self.frequency = frequency
+        self.category = category
+        self.isIncome = isIncome
+        self.startDate = startDate
+        self.endDate = endDate
+        self.isActive = isActive
+        self.lastProcessed = lastProcessed
+        self.nextDue = nextDue
+        self.description = description
+    }
     
     var expenseCategory: Expense.ExpenseCategory? {
         if isIncome { return nil }
@@ -273,7 +303,7 @@ struct RecurringTransaction: Identifiable, Codable {
 // MARK: - Budget Management Models
 
 struct Budget: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     var name: String
     var category: Expense.ExpenseCategory
     var monthlyLimit: Double
@@ -282,6 +312,18 @@ struct Budget: Identifiable, Codable {
     var isActive: Bool = true
     var alertThreshold: Double = 0.8 // Alert at 80%
     var description: String?
+    
+    init(name: String, category: Expense.ExpenseCategory, monthlyLimit: Double, startDate: Date, endDate: Date? = nil, isActive: Bool = true, alertThreshold: Double = 0.8, description: String? = nil) {
+        self.id = UUID()
+        self.name = name
+        self.category = category
+        self.monthlyLimit = monthlyLimit
+        self.startDate = startDate
+        self.endDate = endDate
+        self.isActive = isActive
+        self.alertThreshold = alertThreshold
+        self.description = description
+    }
     
     func currentSpent(expenses: [Expense]) -> Double {
         let calendar = Calendar.current
@@ -436,12 +478,21 @@ struct BudgetAnalysis {
 // MARK: - Core Data Models
 
 struct Income: Identifiable, Codable {
-    var id = UUID()
+    var id: UUID
     var amount: Double
     var source: String
     var category: IncomeCategory
     var date: Date
     var description: String?
+    
+    init(id: UUID = UUID(), amount: Double, source: String, category: IncomeCategory, date: Date, description: String? = nil) {
+        self.id = id
+        self.amount = amount
+        self.source = source
+        self.category = category
+        self.date = date
+        self.description = description
+    }
     
     enum IncomeCategory: String, CaseIterable, Codable {
         case salary = "Salary"
@@ -504,13 +555,23 @@ struct Income: Identifiable, Codable {
 }
 
 struct Expense: Identifiable, Codable {
-    var id = UUID()
+    var id: UUID
     var amount: Double
     var category: ExpenseCategory
     var date: Date
     var expenseDescription: String
     var isRecurring: Bool = false
     var notes: String? = nil
+    
+    init(id: UUID = UUID(), amount: Double, category: ExpenseCategory, date: Date, expenseDescription: String, isRecurring: Bool = false, notes: String? = nil) {
+        self.id = id
+        self.amount = amount
+        self.category = category
+        self.date = date
+        self.expenseDescription = expenseDescription
+        self.isRecurring = isRecurring
+        self.notes = notes
+    }
     
     enum ExpenseCategory: String, CaseIterable, Codable {
         case food = "Food & Dining"
@@ -593,13 +654,23 @@ struct Expense: Identifiable, Codable {
 }
 
 struct SavingsGoal: Identifiable, Codable {
-    var id = UUID()
+    var id: UUID
     var title: String
     var targetAmount: Double
     var currentAmount: Double
     var deadline: Date
     var category: GoalCategory
     var description: String?
+    
+    init(id: UUID = UUID(), title: String, targetAmount: Double, currentAmount: Double, deadline: Date, category: GoalCategory, description: String? = nil) {
+        self.id = id
+        self.title = title
+        self.targetAmount = targetAmount
+        self.currentAmount = currentAmount
+        self.deadline = deadline
+        self.category = category
+        self.description = description
+    }
     
     var progress: Double {
         guard targetAmount > 0 else { return 0 }
@@ -688,7 +759,7 @@ struct SavingsGoal: Identifiable, Codable {
 }
 
 struct Liability: Identifiable, Codable {
-    var id = UUID()
+    var id: UUID
     var name: String
     var type: LiabilityType
     var balance: Double
@@ -696,6 +767,17 @@ struct Liability: Identifiable, Codable {
     var minimumPayment: Double
     var dueDate: Date
     var description: String?
+    
+    init(id: UUID = UUID(), name: String, type: LiabilityType, balance: Double, interestRate: Double, minimumPayment: Double, dueDate: Date, description: String? = nil) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.balance = balance
+        self.interestRate = interestRate
+        self.minimumPayment = minimumPayment
+        self.dueDate = dueDate
+        self.description = description
+    }
     
     enum LiabilityType: String, CaseIterable, Codable {
         case creditCard = "Credit Card"
