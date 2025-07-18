@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseFirestore
 
 // MARK: - Type Aliases
 typealias ExpenseCategory = Expense.ExpenseCategory
@@ -298,6 +299,78 @@ struct RecurringTransaction: Identifiable, Codable {
         updated.lastProcessed = Date()
         return updated
     }
+    
+    // MARK: - Firestore Integration
+    
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "id": id.uuidString,
+            "name": name,
+            "amount": amount,
+            "frequency": frequency.rawValue,
+            "category": category,
+            "isIncome": isIncome,
+            "startDate": Timestamp(date: startDate),
+            "isActive": isActive,
+            "nextDue": Timestamp(date: nextDue)
+        ]
+        if let endDate = endDate {
+            dict["endDate"] = Timestamp(date: endDate)
+        }
+        if let lastProcessed = lastProcessed {
+            dict["lastProcessed"] = Timestamp(date: lastProcessed)
+        }
+        if let description = description {
+            dict["description"] = description
+        }
+        return dict
+    }
+    
+    static func from(dictionary dict: [String: Any]) -> RecurringTransaction? {
+        guard let idString = dict["id"] as? String,
+              let id = UUID(uuidString: idString),
+              let name = dict["name"] as? String,
+              let amount = dict["amount"] as? Double,
+              let frequencyString = dict["frequency"] as? String,
+              let frequency = RecurrenceFrequency(rawValue: frequencyString),
+              let category = dict["category"] as? String,
+              let isIncome = dict["isIncome"] as? Bool,
+              let startDateTimestamp = dict["startDate"] as? Timestamp,
+              let nextDueTimestamp = dict["nextDue"] as? Timestamp else {
+            return nil
+        }
+        
+        let startDate = startDateTimestamp.dateValue()
+        let nextDue = nextDueTimestamp.dateValue()
+        let endDate: Date? = {
+            if let endDateTimestamp = dict["endDate"] as? Timestamp {
+                return endDateTimestamp.dateValue()
+            }
+            return nil
+        }()
+        let lastProcessed: Date? = {
+            if let lastProcessedTimestamp = dict["lastProcessed"] as? Timestamp {
+                return lastProcessedTimestamp.dateValue()
+            }
+            return nil
+        }()
+        let isActive = dict["isActive"] as? Bool ?? true
+        let description = dict["description"] as? String
+        
+        return RecurringTransaction(
+            name: name,
+            amount: amount,
+            frequency: frequency,
+            category: category,
+            isIncome: isIncome,
+            startDate: startDate,
+            endDate: endDate,
+            isActive: isActive,
+            lastProcessed: lastProcessed,
+            nextDue: nextDue,
+            description: description
+        )
+    }
 }
 
 // MARK: - Budget Management Models
@@ -354,6 +427,61 @@ struct Budget: Identifiable, Codable {
         } else {
             return .onTrack
         }
+    }
+    
+    // MARK: - Firestore Integration
+    
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "id": id.uuidString,
+            "name": name,
+            "category": category.rawValue,
+            "monthlyLimit": monthlyLimit,
+            "startDate": Timestamp(date: startDate),
+            "isActive": isActive,
+            "alertThreshold": alertThreshold
+        ]
+        if let endDate = endDate {
+            dict["endDate"] = Timestamp(date: endDate)
+        }
+        if let description = description {
+            dict["description"] = description
+        }
+        return dict
+    }
+    
+    static func from(dictionary dict: [String: Any]) -> Budget? {
+        guard let idString = dict["id"] as? String,
+              let id = UUID(uuidString: idString),
+              let name = dict["name"] as? String,
+              let categoryString = dict["category"] as? String,
+              let category = Expense.ExpenseCategory(rawValue: categoryString),
+              let monthlyLimit = dict["monthlyLimit"] as? Double,
+              let startDateTimestamp = dict["startDate"] as? Timestamp else {
+            return nil
+        }
+        
+        let startDate = startDateTimestamp.dateValue()
+        let endDate: Date? = {
+            if let endDateTimestamp = dict["endDate"] as? Timestamp {
+                return endDateTimestamp.dateValue()
+            }
+            return nil
+        }()
+        let isActive = dict["isActive"] as? Bool ?? true
+        let alertThreshold = dict["alertThreshold"] as? Double ?? 0.8
+        let description = dict["description"] as? String
+        
+        return Budget(
+            name: name,
+            category: category,
+            monthlyLimit: monthlyLimit,
+            startDate: startDate,
+            endDate: endDate,
+            isActive: isActive,
+            alertThreshold: alertThreshold,
+            description: description
+        )
     }
 }
 
@@ -537,9 +665,11 @@ struct Income: Identifiable, Codable {
               let source = dict["source"] as? String,
               let categoryString = dict["category"] as? String,
               let category = IncomeCategory(rawValue: categoryString),
-              let date = dict["date"] as? Date else {
+              let timestamp = dict["date"] as? Timestamp else {
             return nil
         }
+        
+        let date = timestamp.dateValue()
         
         let description = dict["description"] as? String
         
@@ -635,10 +765,12 @@ struct Expense: Identifiable, Codable {
               let amount = dict["amount"] as? Double,
               let categoryString = dict["category"] as? String,
               let category = ExpenseCategory(rawValue: categoryString),
-              let date = dict["date"] as? Date,
+              let timestamp = dict["date"] as? Timestamp,
               let expenseDescription = dict["expenseDescription"] as? String else {
             return nil
         }
+        
+        let date = timestamp.dateValue()
         
         let isRecurring = dict["isRecurring"] as? Bool ?? false
         
@@ -738,11 +870,13 @@ struct SavingsGoal: Identifiable, Codable {
               let title = dict["title"] as? String,
               let targetAmount = dict["targetAmount"] as? Double,
               let currentAmount = dict["currentAmount"] as? Double,
-              let deadline = dict["deadline"] as? Date,
+              let deadlineTimestamp = dict["deadline"] as? Timestamp,
               let categoryString = dict["category"] as? String,
               let category = GoalCategory(rawValue: categoryString) else {
             return nil
         }
+        
+        let deadline = deadlineTimestamp.dateValue()
         
         let description = dict["description"] as? String
         
@@ -837,9 +971,11 @@ struct Liability: Identifiable, Codable {
               let balance = dict["balance"] as? Double,
               let interestRate = dict["interestRate"] as? Double,
               let minimumPayment = dict["minimumPayment"] as? Double,
-              let dueDate = dict["dueDate"] as? Date else {
+              let dueDateTimestamp = dict["dueDate"] as? Timestamp else {
             return nil
         }
+        
+        let dueDate = dueDateTimestamp.dateValue()
         
         let description = dict["description"] as? String
         

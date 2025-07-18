@@ -540,8 +540,8 @@ struct EnhancedLiabilitiesView: View {
             }
         }
         .sheet(isPresented: $showingAddDebt) {
-            // You can reuse the existing LiabilityForm here
-            // or create an enhanced version with the new features
+            AddLiabilityView()
+                .environmentObject(financeStore)
         }
     }
 }

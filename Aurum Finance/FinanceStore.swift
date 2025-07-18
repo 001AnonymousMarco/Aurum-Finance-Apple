@@ -16,14 +16,14 @@ class FinanceStore: ObservableObject {
     @Published var selectedExpenseCategory: ExpenseCategory? = nil
     
     // Phase 2: Advanced Financial Management
-    @Published var recurringTransactions: [RecurringTransaction] = []
-    @Published var budgets: [Budget] = []
     @Published var recurringTransactionSchedule: [RecurringTransaction] = []
     
     var incomes: [Income] { firestoreManager.incomes }
     var expenses: [Expense] { firestoreManager.expenses }
     var savingsGoals: [SavingsGoal] { firestoreManager.savingsGoals }
     var liabilities: [Liability] { firestoreManager.liabilities }
+    var budgets: [Budget] { firestoreManager.budgets }
+    var recurringTransactions: [RecurringTransaction] { firestoreManager.recurringTransactions }
     
     // MARK: - Initialization
     
@@ -367,44 +367,44 @@ class FinanceStore: ObservableObject {
         
         // Update the recurring transactions list
         for processed in processedTransactions {
-            if let index = recurringTransactions.firstIndex(where: { $0.id == processed.id }) {
-                recurringTransactions[index] = processed
-            }
+            updateRecurringTransaction(processed)
         }
     }
     
     func addRecurringTransaction(_ transaction: RecurringTransaction) {
-        recurringTransactions.append(transaction)
-        // TODO: Add Firestore persistence
+        Task {
+            try? await firestoreManager.addRecurringTransaction(transaction)
+        }
     }
     
     func updateRecurringTransaction(_ transaction: RecurringTransaction) {
-        if let index = recurringTransactions.firstIndex(where: { $0.id == transaction.id }) {
-            recurringTransactions[index] = transaction
-            // TODO: Add Firestore persistence
+        Task {
+            try? await firestoreManager.updateRecurringTransaction(transaction)
         }
     }
     
     func deleteRecurringTransaction(_ transaction: RecurringTransaction) {
-        recurringTransactions.removeAll { $0.id == transaction.id }
-        // TODO: Add Firestore persistence
+        Task {
+            try? await firestoreManager.deleteRecurringTransaction(transaction)
+        }
     }
     
     func addBudget(_ budget: Budget) {
-        budgets.append(budget)
-        // TODO: Add Firestore persistence
+        Task {
+            try? await firestoreManager.addBudget(budget)
+        }
     }
     
     func updateBudget(_ budget: Budget) {
-        if let index = budgets.firstIndex(where: { $0.id == budget.id }) {
-            budgets[index] = budget
-            // TODO: Add Firestore persistence
+        Task {
+            try? await firestoreManager.updateBudget(budget)
         }
     }
     
     func deleteBudget(_ budget: Budget) {
-        budgets.removeAll { $0.id == budget.id }
-        // TODO: Add Firestore persistence
+        Task {
+            try? await firestoreManager.deleteBudget(budget)
+        }
     }
 }
 

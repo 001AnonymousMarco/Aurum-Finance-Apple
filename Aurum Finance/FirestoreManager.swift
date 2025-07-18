@@ -11,6 +11,8 @@ class FirestoreManager: ObservableObject {
     @Published var expenses: [Expense] = []
     @Published var savingsGoals: [SavingsGoal] = []
     @Published var liabilities: [Liability] = []
+    @Published var budgets: [Budget] = []
+    @Published var recurringTransactions: [RecurringTransaction] = []
     
     private var listeners: [ListenerRegistration] = []
     private var cancellables: Set<AnyCancellable> = []
@@ -34,6 +36,8 @@ class FirestoreManager: ObservableObject {
         expenses.removeAll()
         savingsGoals.removeAll()
         liabilities.removeAll()
+        budgets.removeAll()
+        recurringTransactions.removeAll()
         
         // 3. Guard against a nil user ID. If the user is logged out, stop here.
         guard let userId = userId else {
@@ -48,6 +52,8 @@ class FirestoreManager: ObservableObject {
         setupExpenseListener(userId: userId)
         setupSavingsGoalListener(userId: userId)
         setupLiabilityListener(userId: userId)
+        setupBudgetListener(userId: userId)
+        setupRecurringTransactionListener(userId: userId)
     }
     
     private func setupIncomeListener(userId: String) {
@@ -110,6 +116,36 @@ class FirestoreManager: ObservableObject {
                 }
             }
         listeners.append(liabilitiesListener)
+    }
+    
+    private func setupBudgetListener(userId: String) {
+        let budgetsListener = db.collection("users/\(userId)/budgets")
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let documents = snapshot?.documents else {
+                    print("Error fetching budgets: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+                
+                self?.budgets = documents.compactMap { document in
+                    Budget.from(dictionary: document.data())
+                }
+            }
+        listeners.append(budgetsListener)
+    }
+    
+    private func setupRecurringTransactionListener(userId: String) {
+        let recurringListener = db.collection("users/\(userId)/recurringTransactions")
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let documents = snapshot?.documents else {
+                    print("Error fetching recurring transactions: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+                
+                self?.recurringTransactions = documents.compactMap { document in
+                    RecurringTransaction.from(dictionary: document.data())
+                }
+            }
+        listeners.append(recurringListener)
     }
     
     // MARK: - Income Operations
@@ -178,6 +214,40 @@ class FirestoreManager: ObservableObject {
     func deleteLiability(_ liability: Liability) async throws {
         guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
         try await db.collection("users/\(userId)/liabilities").document(liability.id.uuidString).delete()
+    }
+    
+    // MARK: - Budget Operations
+    
+    func addBudget(_ budget: Budget) async throws {
+        guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
+        try await db.collection("users/\(userId)/budgets").document(budget.id.uuidString).setData(budget.toDictionary())
+    }
+    
+    func updateBudget(_ budget: Budget) async throws {
+        guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
+        try await db.collection("users/\(userId)/budgets").document(budget.id.uuidString).setData(budget.toDictionary())
+    }
+    
+    func deleteBudget(_ budget: Budget) async throws {
+        guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
+        try await db.collection("users/\(userId)/budgets").document(budget.id.uuidString).delete()
+    }
+    
+    // MARK: - Recurring Transaction Operations
+    
+    func addRecurringTransaction(_ transaction: RecurringTransaction) async throws {
+        guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
+        try await db.collection("users/\(userId)/recurringTransactions").document(transaction.id.uuidString).setData(transaction.toDictionary())
+    }
+    
+    func updateRecurringTransaction(_ transaction: RecurringTransaction) async throws {
+        guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
+        try await db.collection("users/\(userId)/recurringTransactions").document(transaction.id.uuidString).setData(transaction.toDictionary())
+    }
+    
+    func deleteRecurringTransaction(_ transaction: RecurringTransaction) async throws {
+        guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
+        try await db.collection("users/\(userId)/recurringTransactions").document(transaction.id.uuidString).delete()
     }
 }
 
