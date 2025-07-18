@@ -18,6 +18,7 @@ class FinanceStore: ObservableObject {
     // Phase 2: Advanced Financial Management
     @Published var recurringTransactionSchedule: [RecurringTransaction] = []
     
+    var userProfile: UserProfile? { firestoreManager.userProfile }
     var incomes: [Income] { firestoreManager.incomes }
     var expenses: [Expense] { firestoreManager.expenses }
     var savingsGoals: [SavingsGoal] { firestoreManager.savingsGoals }

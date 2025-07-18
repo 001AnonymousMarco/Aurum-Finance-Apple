@@ -49,7 +49,7 @@ struct Aurum_FinanceApp: App {
         }
         #if os(macOS)
         .windowStyle(.automatic)
-        .windowResizability(.contentSize)
+        .windowResizability(.automatic)
         .defaultSize(width: 1200, height: 800)
         #endif
     }

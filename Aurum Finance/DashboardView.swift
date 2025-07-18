@@ -6,6 +6,9 @@ struct DashboardView: View {
     @State private var selectedExpenseCategory: ExpenseCategory?
     @State private var showingAddSheet = false
     @State private var addSheetType: AddSheetType = .income
+    @State private var currentDate = Date()
+    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         GeometryReader { geometry in
@@ -100,12 +103,16 @@ struct DashboardView: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Good morning!")
+                Text("Good morning, \(financeStore.userProfile?.firstName ?? "")!")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
                 Text("Welcome back to Aurum Finance")
+                    .font(.subheadline)
+                    .foregroundColor(.aurumGray)
+                
+                Text(currentDate.formatted(date: .complete, time: .shortened))
                     .font(.subheadline)
                     .foregroundColor(.aurumGray)
             }
@@ -121,6 +128,9 @@ struct DashboardView: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .onReceive(timer) { input in
+            currentDate = input
+        }
     }
     
     // MARK: - Enhanced Quick Stats Section

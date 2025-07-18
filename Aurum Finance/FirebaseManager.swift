@@ -34,12 +34,18 @@ class FirebaseManager: ObservableObject {
         }
     }
     
-    func signUp(email: String, password: String) async throws {
+    func signUp(email: String, password: String, firstName: String = "", lastName: String = "") async throws {
         let result = try await auth.createUser(withEmail: email, password: password)
         // Extract the user before crossing concurrency boundaries
         let user = result.user
         self.currentUser = user
         self.isAuthenticated = true
+        
+        // Create user profile if firstName and lastName are provided
+        if !firstName.isEmpty && !lastName.isEmpty {
+            let firestoreManager = FirestoreManager()
+            try await firestoreManager.createNewUserProfile(for: user, firstName: firstName, lastName: lastName)
+        }
     }
     
     func signIn(email: String, password: String) async throws {

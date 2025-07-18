@@ -202,8 +202,10 @@ struct RecurringTransactionsListView: View {
         case expense = "Expense"
         case overdue = "Overdue"
         case upcoming = "Upcoming"
+        case daily = "Daily"
         case weekly = "Weekly"
         case monthly = "Monthly"
+        case yearly = "Yearly"
     }
     
     var filteredTransactions: [RecurringTransaction] {
@@ -220,10 +222,14 @@ struct RecurringTransactionsListView: View {
             return financeStore.overdueRecurringTransactions
         case .upcoming:
             return financeStore.upcomingRecurringTransactions
+        case .daily:
+            return transactions.filter { $0.frequency == .daily }
         case .weekly:
             return transactions.filter { $0.frequency == .weekly }
         case .monthly:
             return transactions.filter { $0.frequency == .monthly }
+        case .yearly:
+            return transactions.filter { $0.frequency == .yearly }
         }
     }
     

@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
 import Combine
 
 @MainActor
@@ -7,6 +8,7 @@ class FirestoreManager: ObservableObject {
     private let db = Firestore.firestore()
     private let auth = FirebaseManager.shared
     
+    @Published var userProfile: UserProfile?
     @Published var incomes: [Income] = []
     @Published var expenses: [Expense] = []
     @Published var savingsGoals: [SavingsGoal] = []
@@ -32,6 +34,7 @@ class FirestoreManager: ObservableObject {
         listeners.removeAll()
         
         // 2. Clear all local data arrays when the user changes (e.g., on logout).
+        userProfile = nil
         incomes.removeAll()
         expenses.removeAll()
         savingsGoals.removeAll()
@@ -48,6 +51,7 @@ class FirestoreManager: ObservableObject {
         print("FirestoreManager: Setting up new listeners for user \(userId)...")
         
         // 4. Set up listeners for authenticated user
+        setupUserProfileListener(userId: userId)
         setupIncomeListener(userId: userId)
         setupExpenseListener(userId: userId)
         setupSavingsGoalListener(userId: userId)
@@ -248,6 +252,38 @@ class FirestoreManager: ObservableObject {
     func deleteRecurringTransaction(_ transaction: RecurringTransaction) async throws {
         guard let userId = auth.currentUser?.uid else { throw FirestoreError.notAuthenticated }
         try await db.collection("users/\(userId)/recurringTransactions").document(transaction.id.uuidString).delete()
+    }
+    
+    // MARK: - User Profile Methods
+    
+    private func setupUserProfileListener(userId: String) {
+        let userProfileListener = db.collection("users").document(userId)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let document = snapshot, document.exists,
+                      let data = document.data() else {
+                    print("Error fetching user profile: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+                
+                self?.userProfile = UserProfile.from(dictionary: data, id: userId)
+            }
+        listeners.append(userProfileListener)
+    }
+    
+    func createNewUserProfile(for user: FirebaseAuth.User, firstName: String, lastName: String) async throws {
+        let userProfile = UserProfile(
+            id: user.uid,
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email ?? ""
+        )
+        
+        try await db.collection("users").document(user.uid).setData(userProfile.toDictionary())
+    }
+    
+    func fetchUserProfile(userId: String) {
+        // This is now handled by the setupUserProfileListener method
+        // which is called automatically when a user logs in
     }
 }
 

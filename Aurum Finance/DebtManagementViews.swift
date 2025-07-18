@@ -363,9 +363,12 @@ struct PayoffCalculatorView: View {
             .background(Color.aurumDark)
             .navigationTitle("Payoff Calculator")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Done") { dismiss() }
-                        .foregroundColor(.aurumPurple)
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.aurumGray)
+                    }
                 }
             }
         }

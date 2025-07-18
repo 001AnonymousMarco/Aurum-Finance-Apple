@@ -2,6 +2,8 @@ import SwiftUI
 
 struct AuthView: View {
     @StateObject private var firebaseManager = FirebaseManager.shared
+    @State private var firstName = ""
+    @State private var lastName = ""
     @State private var email = ""
     @State private var password = ""
     @State private var isSignUp = false
@@ -27,6 +29,16 @@ struct AuthView: View {
             
             // Form Fields
             VStack(spacing: 20) {
+                if isSignUp {
+                    TextField("First Name", text: $firstName)
+                        .textFieldStyle(AurumTextFieldStyle())
+                        .textContentType(.givenName)
+                    
+                    TextField("Last Name", text: $lastName)
+                        .textFieldStyle(AurumTextFieldStyle())
+                        .textContentType(.familyName)
+                }
+                
                 TextField("Email", text: $email)
                     .textFieldStyle(AurumTextFieldStyle())
                     .textContentType(.emailAddress)
@@ -79,7 +91,7 @@ struct AuthView: View {
     private func authenticate() async {
         do {
             if isSignUp {
-                try await firebaseManager.signUp(email: email, password: password)
+                try await firebaseManager.signUp(email: email, password: password, firstName: firstName, lastName: lastName)
             } else {
                 try await firebaseManager.signIn(email: email, password: password)
             }

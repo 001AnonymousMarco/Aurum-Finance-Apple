@@ -29,11 +29,6 @@ struct ContentView: View {
                 DashboardView(selectedTab: $selectedTab)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.aurumDark)
-                    .toolbar {
-                        ToolbarItem(placement: toolbarPlacement) {
-                            profileButton
-                        }
-                    }
             }
             .environmentObject(financeStore)
             .tabItem {
@@ -105,6 +100,11 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accentColor(.aurumGold)
         .background(Color.aurumDark)
+        .toolbar {
+            ToolbarItem(placement: toolbarPlacement) {
+                profileButton
+            }
+        }
         .sheet(isPresented: $showingAddSheet) {
             NavigationView {
                 Group {
@@ -129,7 +129,22 @@ struct ContentView: View {
     
     private var profileButton: some View {
         Menu {
-            if let email = firebaseManager.currentUser?.email {
+            if let profile = financeStore.userProfile {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(profile.firstName) \(profile.lastName)")
+                        .font(.headline)
+                        .foregroundColor(.aurumText)
+                    
+                    Text(profile.email)
+                        .font(.subheadline)
+                        .foregroundColor(.aurumGray)
+                    
+                    Text("Joined \(profile.joinDate.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.caption)
+                        .foregroundColor(.aurumGray)
+                }
+                .padding(.vertical, 4)
+            } else if let email = firebaseManager.currentUser?.email {
                 Text(email)
                     .foregroundColor(.aurumGray)
             }
@@ -264,13 +279,15 @@ struct TransactionsView: View {
     @State private var addSheetType: AddSheetType = .expense
     
     var body: some View {
-        NavigationView {
+        GeometryReader { geometry in
+            NavigationView {
             VStack(spacing: 0) {
                 // Search and Filter Header
                 TransactionFilterHeader(
                     searchText: $financeStore.searchText,
                     showingFilterSheet: $showingFilterSheet
                 )
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(Color.aurumCard)
@@ -278,6 +295,7 @@ struct TransactionsView: View {
                 // Active Filters Display
                 if hasActiveFilters {
                     ActiveFiltersView()
+                        .frame(maxWidth: .infinity)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(Color.aurumDark)
@@ -289,6 +307,7 @@ struct TransactionsView: View {
                     showingAddSheet: $showingAddSheet,
                     addSheetType: $addSheetType
                 )
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.aurumDark)
@@ -326,6 +345,8 @@ struct TransactionsView: View {
                     .environmentObject(financeStore)
                 }
             }
+        }
+        .frame(width: geometry.size.width, height: geometry.size.height)
         }
     }
     
@@ -509,9 +530,11 @@ struct TransactionsList: View {
                         )
                     }
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 100) // Extra padding for tab bar
             }
+            .frame(maxWidth: .infinity)
         }
     }
     
@@ -582,9 +605,11 @@ struct TransactionDateSection: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
             .background(Color.aurumCard)
             .cornerRadius(8)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -636,6 +661,7 @@ struct EnhancedTransactionRow: View {
                     .foregroundColor(transaction.type == .income ? .aurumGreen : .aurumRed)
             }
         }
+        .frame(maxWidth: .infinity)
     }
     
     private var timeFormatter: DateFormatter {

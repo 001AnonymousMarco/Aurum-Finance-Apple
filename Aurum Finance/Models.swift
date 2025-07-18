@@ -1,6 +1,50 @@
 import Foundation
 import FirebaseFirestore
 
+// MARK: - User Profile
+
+struct UserProfile: Codable, Identifiable {
+    var id: String // Firebase UID
+    var firstName: String
+    var lastName: String
+    var email: String
+    let joinDate: Date
+    
+    init(id: String, firstName: String, lastName: String, email: String, joinDate: Date = Date()) {
+        self.id = id
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.joinDate = joinDate
+    }
+    
+    func toDictionary() -> [String: Any] {
+        return [
+            "firstName": firstName,
+            "lastName": lastName,
+            "email": email,
+            "joinDate": Timestamp(date: joinDate)
+        ]
+    }
+    
+    static func from(dictionary: [String: Any], id: String) -> UserProfile? {
+        guard let firstName = dictionary["firstName"] as? String,
+              let lastName = dictionary["lastName"] as? String,
+              let email = dictionary["email"] as? String,
+              let joinDateTimestamp = dictionary["joinDate"] as? Timestamp else {
+            return nil
+        }
+        
+        return UserProfile(
+            id: id,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            joinDate: joinDateTimestamp.dateValue()
+        )
+    }
+}
+
 // MARK: - Type Aliases
 typealias ExpenseCategory = Expense.ExpenseCategory
 
