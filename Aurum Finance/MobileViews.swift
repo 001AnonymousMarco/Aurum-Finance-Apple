@@ -365,51 +365,7 @@ struct MobileSavingsGoalsView: View {
     }
 }
 
-// MARK: - Mobile Goal Card
-struct MobileGoalCard: View {
-    let goal: SavingsGoal
-    
-    private var progressPercentage: Double {
-        guard goal.targetAmount > 0 else { return 0 }
-        return min(goal.currentAmount / goal.targetAmount, 1.0)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "target")
-                    .foregroundColor(.aurumBlue)
-                    .font(.title2)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(goal.title)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.aurumText)
-                    
-                    Text("\(Int(progressPercentage * 100))% complete")
-                        .font(.caption)
-                        .foregroundColor(.aurumGray)
-                }
-                
-                Spacer()
-                
-                Text(goal.currentAmount.formatted(.currency(code: "USD")))
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.aurumGold)
-            }
-            
-            // Progress bar
-            ProgressView(value: progressPercentage)
-                .progressViewStyle(LinearProgressViewStyle(tint: .aurumBlue))
-                .scaleEffect(x: 1, y: 2, anchor: .center)
-        }
-        .padding(16)
-        .background(Color.aurumCard)
-        .cornerRadius(12)
-    }
-}
+// MobileGoalCard is now implemented in MobileGoalsView.swift
 
 // MARK: - Mobile Profile Button
 struct MobileProfileButton: View {
