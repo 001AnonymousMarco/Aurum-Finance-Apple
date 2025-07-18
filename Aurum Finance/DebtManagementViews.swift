@@ -321,12 +321,18 @@ struct PayoffCalculatorView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             
-            if calculationMode == .extraPayment {
-                TextField("Extra payment amount", text: $extraPayment)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-            } else {
-                TextField("Total monthly payment", text: $customPayment)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            VStack(alignment: .leading, spacing: 8) {
+                if calculationMode == .extraPayment {
+                    Text("Extra Payment Amount")
+                        .font(.subheadline)
+                        .foregroundColor(.aurumText)
+                    AmountInputField(amount: $extraPayment)
+                } else {
+                    Text("Total Monthly Payment")
+                        .font(.subheadline)
+                        .foregroundColor(.aurumText)
+                    AmountInputField(amount: $customPayment)
+                }
             }
         }
         .padding(16)
@@ -347,6 +353,7 @@ struct PayoffCalculatorView: View {
                             strategy: strategy,
                             originalStrategy: liability.minimumPayoffStrategy()
                         )
+                        .cardStyle()
                     }
                     
                     Spacer()
@@ -362,6 +369,7 @@ struct PayoffCalculatorView: View {
                 }
             }
         }
+        .frame(minWidth: 500, minHeight: 600)
     }
     
     private func calculateStrategy() -> DebtPayoffStrategy? {
@@ -459,8 +467,6 @@ struct PayoffResultsView: View {
             }
         }
         .padding(16)
-        .background(Color.aurumCard)
-        .cornerRadius(12)
     }
 }
 

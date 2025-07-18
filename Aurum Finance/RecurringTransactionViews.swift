@@ -202,6 +202,8 @@ struct RecurringTransactionsListView: View {
         case expense = "Expense"
         case overdue = "Overdue"
         case upcoming = "Upcoming"
+        case weekly = "Weekly"
+        case monthly = "Monthly"
     }
     
     var filteredTransactions: [RecurringTransaction] {
@@ -218,6 +220,10 @@ struct RecurringTransactionsListView: View {
             return financeStore.overdueRecurringTransactions
         case .upcoming:
             return financeStore.upcomingRecurringTransactions
+        case .weekly:
+            return transactions.filter { $0.frequency == .weekly }
+        case .monthly:
+            return transactions.filter { $0.frequency == .monthly }
         }
     }
     
@@ -522,11 +528,20 @@ struct FilterChip: View {
                 .foregroundColor(isSelected ? .aurumDark : .aurumText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? .aurumPurple : Color.aurumCard)
+                .background(backgroundView)
                 .cornerRadius(20)
+        }
+    }
+    
+    @ViewBuilder
+    private var backgroundView: some View {
+        if isSelected {
+            Color.aurumPurple
+        } else {
+            Color.clear
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.aurumBorder, lineWidth: isSelected ? 0 : 1)
+                        .stroke(Color.aurumGray.opacity(0.3), lineWidth: 1)
                 )
         }
     }

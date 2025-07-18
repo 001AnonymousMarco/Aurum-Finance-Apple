@@ -117,7 +117,6 @@ struct DashboardView: View {
                     .font(.title2)
                     .foregroundColor(.white)
                     .padding(12)
-                    .background(Color.aurumCard)
                     .clipShape(Circle())
             }
         }
@@ -450,38 +449,102 @@ struct SavingsGoalCard: View {
     @State private var isHovered = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: goal.category.icon)
-                    .font(.title2)
-                    .foregroundColor(Color(hex: goal.category.color))
+                // Goal icon and name
+                HStack(spacing: 8) {
+                    Image(systemName: goal.category.icon)
+                        .font(.title3)
+                        .foregroundColor(Color(hex: goal.category.color))
+                        .frame(width: 24, height: 24)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(goal.title)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        Text(goal.category.rawValue)
+                            .font(.caption)
+                            .foregroundColor(.aurumGray)
+                    }
+                }
                 
                 Spacer()
                 
-                Text("\(Int(goal.progress * 100))%")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                // Progress percentage
+                VStack {
+                    Text("\(Int(goal.progress * 100))%")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(hex: goal.category.color))
+                }
             }
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text(goal.title)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .lineLimit(1)
+            // Amount saved vs target
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Saved")
+                        .font(.caption)
+                        .foregroundColor(.aurumGray)
+                    
+                    Text(goal.currentAmount.currencyFormatted)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                }
                 
-                Text("\(goal.currentAmount.compactCurrencyFormatted) of \(goal.targetAmount.compactCurrencyFormatted)")
-                    .font(.subheadline)
-                    .foregroundColor(.aurumGray)
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Target")
+                        .font(.caption)
+                        .foregroundColor(.aurumGray)
+                    
+                    Text(goal.targetAmount.currencyFormatted)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                }
             }
             
-            ProgressView(value: goal.progress)
-                .progressViewStyle(LinearProgressViewStyle(tint: Color(hex: goal.category.color)))
-                .scaleEffect(x: 1, y: 2, anchor: .center)
+            // Progress bar
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Progress")
+                        .font(.caption)
+                        .foregroundColor(.aurumGray)
+                    
+                    Spacer()
+                    
+                    let deadline = goal.deadline
+                    let daysRemaining = Calendar.current.dateComponents([.day], from: Date(), to: deadline).day ?? 0
+                    Text(daysRemaining > 0 ? "\(daysRemaining) days left" : "Goal reached!")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(daysRemaining > 0 ? .aurumGray : Color(hex: "#34C759"))
+                }
+                
+                ProgressView(value: goal.progress)
+                    .progressViewStyle(LinearProgressViewStyle(tint: Color(hex: goal.category.color)))
+                    .scaleEffect(x: 1, y: 1.5, anchor: .center)
+            }
+            
+            // Remaining amount
+            let remaining = goal.targetAmount - goal.currentAmount
+            HStack {
+                Text(remaining > 0 ? "Remaining:" : "Goal exceeded!")
+                    .font(.caption)
+                    .foregroundColor(.aurumGray)
+                
+                Spacer()
+                
+                Text(remaining > 0 ? remaining.currencyFormatted : (goal.currentAmount - goal.targetAmount).currencyFormatted)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(remaining > 0 ? .white : Color(hex: "#34C759"))
+            }
         }
         .padding(20)
-        .frame(width: 200, height: 160)
         .cardStyle()
         .scaleEffect(isHovered ? 1.05 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isHovered)

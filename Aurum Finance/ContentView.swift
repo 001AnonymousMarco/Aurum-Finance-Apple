@@ -372,7 +372,6 @@ struct TransactionFilterHeader: View {
                     .font(.system(size: 16))
                     .foregroundColor(.aurumGold)
                     .padding(12)
-                    .background(Color.aurumDark)
                     .cornerRadius(10)
             }
         }
@@ -561,6 +560,7 @@ struct TransactionDateSection: View {
                     .fontWeight(.medium)
                     .foregroundColor(totalAmount >= 0 ? .aurumGreen : .aurumRed)
             }
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color.aurumCard)
@@ -865,10 +865,7 @@ struct FilterPill: View {
                 .foregroundColor(isSelected ? .black : .white)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(backgroundColor)
-                )
+                .background(backgroundView)
         }
         .buttonStyle(.plain)
         #if os(macOS)
@@ -878,13 +875,17 @@ struct FilterPill: View {
         #endif
     }
     
-    private var backgroundColor: Color {
+    @ViewBuilder
+    private var backgroundView: some View {
         if isSelected {
-            return .aurumGold
-        } else if isHovered {
-            return Color.aurumGray.opacity(0.3)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.aurumGold)
         } else {
-            return Color.aurumCard
+            Color.clear
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.aurumGray.opacity(0.3), lineWidth: 1)
+                )
         }
     }
 }
@@ -983,18 +984,10 @@ struct SavingsGoalsView: View {
                                 .padding(.horizontal, geometry.size.width * 0.05)
                             }
                             
-                            // Goals Grid
-                            let columns = [
-                                GridItem(.adaptive(
-                                    minimum: geometry.size.width > 1200 ? 300 : 250,
-                                    maximum: 400
-                                ), spacing: 16)
-                            ]
-                            
-                            LazyVGrid(columns: columns, spacing: 16) {
+                            // Goals List
+                            LazyVStack(spacing: 16) {
                                 ForEach(filteredGoals) { goal in
                                     SavingsGoalCard(goal: goal)
-                                        .frame(height: 160)
                                 }
                             }
                             .padding(.horizontal, geometry.size.width * 0.05)
